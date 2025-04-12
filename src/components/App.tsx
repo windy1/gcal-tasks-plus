@@ -8,6 +8,8 @@ import {
     useGoogleLoginWithStorage,
 } from "@/hooks";
 import { TaskList } from "@/data";
+import { TaskLists } from "./TaskLists";
+import { Button } from "./Button";
 
 const Container = styled.div`
     height: 100vh;
@@ -23,26 +25,6 @@ const SignOutWrapper = styled.div`
     position: absolute;
     top: 1rem;
     right: 1rem;
-`;
-
-const StyledButton = styled.button`
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-        background-color: #0056b3;
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
-    }
 `;
 
 const AppContent = () => {
@@ -63,21 +45,14 @@ const AppContent = () => {
         <Container>
             {token && (
                 <SignOutWrapper>
-                    <StyledButton onClick={signOut}>Sign Out</StyledButton>
+                    <Button onClick={signOut}>Sign Out</Button>
                 </SignOutWrapper>
             )}
             <h1>Google Calendar Tasks Plus</h1>
             {!token ? (
-                <StyledButton onClick={() => login()}>Sign in with Google</StyledButton>
+                <Button onClick={() => login()}>Sign in with Google</Button>
             ) : (
-                <div>
-                    <h2>Your Task Lists</h2>
-                    <ul>
-                        {taskLists.map((list) => (
-                            <li key={list.id}>{list.title}</li>
-                        ))}
-                    </ul>
-                </div>
+                <TaskLists taskLists={taskLists} />
             )}
         </Container>
     );
