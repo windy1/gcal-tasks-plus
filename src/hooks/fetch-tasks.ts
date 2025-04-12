@@ -1,21 +1,25 @@
-import axios from "axios";
 import { Auth } from "@/constants";
-import { TaskList, TaskListSchema } from "@/data";
+import { Task, TaskList, TaskSchema } from "@/data";
+import { getAuthorization } from "@/utils/auth";
+import axios from "axios";
 import { z } from "zod";
 
-const TaskListsUrl = "https://tasks.googleapis.com/tasks/v1/users/@me/lists";
+const TasksUrl = (taskListId: string) =>
+    `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks`;
 
-const getAuthorization = (token: string) => `Bearer ${token}`;
-
-const _fetchTasks = async (token: string, setTaskLists: (taskLists: TaskList[]) => void) => {
+const _fetchTasks = async (
+    token: string,
+    taskList: TaskList,
+    setTasks: (tasks: Task[]) => void,
+) => {
     try {
-        const res = await axios.get(TaskListsUrl, {
+        const res = await axios.get(TasksUrl(taskList.id), {
             headers: {
                 Authorization: getAuthorization(token),
             },
         });
 
-        setTaskLists(z.array(TaskListSchema).parse(res.data.items));
+        setTasks(z.array(TaskSchema).parse(res.data.items));
 
         return () => {};
     } catch (err) {
@@ -26,12 +30,16 @@ const _fetchTasks = async (token: string, setTaskLists: (taskLists: TaskList[]) 
     }
 };
 
-export const fetchTasks = (token: string | null, setTaskLists: (taskLists: TaskList[]) => void) => {
+export const fetchTasks = (
+    token: string | null,
+    taskList: TaskList,
+    setTasks: (tasks: Task[]) => void,
+) => {
     if (!token) {
         return;
     }
 
-    _fetchTasks(token, setTaskLists);
+    _fetchTasks(token, taskList, setTasks);
 
     return () => {};
 };

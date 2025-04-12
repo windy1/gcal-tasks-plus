@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from "react";
 import {
-    fetchTasks,
+    fetchTaskLists,
     handleGoogleSignOut,
     handleTokenExpiration,
     useGoogleLoginWithStorage,
@@ -10,6 +10,7 @@ import {
 import { TaskList } from "@/data";
 import { TaskLists } from "./TaskLists";
 import { Button } from "./Button";
+import { Tasks } from "./Tasks";
 
 const Container = styled.div`
     height: 100vh;
@@ -30,6 +31,7 @@ const SignOutWrapper = styled.div`
 const AppContent = () => {
     const [token, setToken] = useState<string | null>(null);
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
+    const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
 
     const login = useGoogleLoginWithStorage(setToken);
 
@@ -39,7 +41,7 @@ const AppContent = () => {
     };
 
     useEffect(() => handleTokenExpiration(setToken), []);
-    useEffect(() => fetchTasks(token, setTaskLists), [token]);
+    useEffect(() => fetchTaskLists(token, setTaskLists), [token]);
 
     return (
         <Container>
@@ -49,11 +51,14 @@ const AppContent = () => {
                 </SignOutWrapper>
             )}
             <h1>Google Calendar Tasks Plus</h1>
-            {!token ? (
-                <Button onClick={() => login()}>Sign in with Google</Button>
-            ) : (
-                <TaskLists taskLists={taskLists} />
+
+            {!token && <Button onClick={() => login()}>Sign in with Google</Button>}
+
+            {token && !selectedTaskList && (
+                <TaskLists taskLists={taskLists} setSelectedTaskList={setSelectedTaskList} />
             )}
+
+            {token && selectedTaskList && <Tasks taskList={selectedTaskList} />}
         </Container>
     );
 };

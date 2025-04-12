@@ -37,14 +37,17 @@ const Item = styled.li`
 
 interface TaskListsProps {
     taskLists: TaskList[];
+    setSelectedTaskList: (taskList: TaskList) => void;
 }
 
-export const TaskLists: React.FC<TaskListsProps> = ({ taskLists }) => {
+export const TaskLists: React.FC<TaskListsProps> = ({ taskLists, setSelectedTaskList }) => {
     return (
         <Container>
             <List>
                 {taskLists.map((list) => (
-                    <Item key={list.id}>{list.title}</Item>
+                    <Item key={list.id} onClick={() => setSelectedTaskList(list)}>
+                        {list.title}
+                    </Item>
                 ))}
             </List>
         </Container>
