@@ -15,6 +15,10 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { SortableItem } from "./SortableItem";
 
+const SwipeThreshold = 600;
+const SwipeOpacity = 0.5;
+const VerticalAxisLockThreshold = 100;
+
 const Container = styled.div`
     width: 100%;
     display: flex;
@@ -32,7 +36,7 @@ const List = styled.ul`
 const restrictVerticalAndRight: Modifier = ({ transform, draggingNodeRect, windowRect }) => {
     const maxY = (windowRect?.height ?? 0) - (draggingNodeRect?.height ?? 0);
 
-    const restrictY = transform.x > 0; // if swiping right, lock vertical movement
+    const restrictY = transform.x > VerticalAxisLockThreshold;
 
     return {
         ...transform,
@@ -40,9 +44,6 @@ const restrictVerticalAndRight: Modifier = ({ transform, draggingNodeRect, windo
         y: restrictY ? 0 : Math.min(Math.max(0, transform.y), maxY),
     };
 };
-
-const SwipeThreshold = 600;
-const SwipeOpacity = 0.5;
 
 interface TasksProps {
     taskList: TaskList;
@@ -61,7 +62,6 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over, delta } = event;
 
-        // If swiped right past the threshold, remove the task
         if (delta.x > SwipeThreshold) {
             handleRemove(active.id as string);
             return;
