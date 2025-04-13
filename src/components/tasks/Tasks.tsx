@@ -11,7 +11,7 @@ import {
     Modifier,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { SortableItem } from "./SortableItem";
 import { Spinner } from "../Spinner";
@@ -55,6 +55,24 @@ const restrictVerticalAndRight = (listRef: React.RefObject<HTMLElement | null>):
     };
 };
 
+const TaskOrderStorageKey = (taskList: TaskList) => `task-order-${taskList.id}`;
+
+const orderTasks = (savedOrder: string, fetchedTasks: Task[], orderedTasks: Task[]): Task[] => {
+    try {
+        const order = JSON.parse(savedOrder) as string[];
+        const taskMap = new Map(fetchedTasks.map((task) => [task.id, task]));
+
+        orderedTasks = order.map((id) => taskMap.get(id)).filter((t): t is Task => !!t);
+
+        const missing = fetchedTasks.filter((t) => !order.includes(t.id));
+
+        return [...orderedTasks, ...missing];
+    } catch (e) {
+        console.warn("Failed to parse saved order:", e);
+        return [];
+    }
+};
+
 interface TasksProps {
     taskList: TaskList;
 }
@@ -64,17 +82,33 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const token = localStorage.getItem(Auth.AccessToken);
     const listRef = useRef<HTMLUListElement>(null);
+    const taskOrderStorageKey = TaskOrderStorageKey(taskList);
 
     const sensors = useSensors(useSensor(PointerSensor));
 
+    const onTasksFetched = useCallback(
+        (fetchedTasks: Task[]) => {
+            const savedOrder = localStorage.getItem(taskOrderStorageKey);
+            let orderedTasks = fetchedTasks;
+
+            if (savedOrder) {
+                orderedTasks = orderTasks(savedOrder, fetchedTasks, orderedTasks);
+            }
+
+            setTasks(orderedTasks);
+            setLoading(false);
+        },
+        [taskOrderStorageKey],
+    );
+
     useEffect(() => {
         setLoading(true);
+        fetchTasks(token, taskList, onTasksFetched);
+    }, [token, taskList, taskOrderStorageKey, onTasksFetched]);
 
-        fetchTasks(token, taskList, (tasks) => {
-            setTasks(tasks);
-            setLoading(false);
-        });
-    }, [token, taskList]);
+    const saveOrder = (orderedIds: string[]) => {
+        localStorage.setItem(taskOrderStorageKey, JSON.stringify(orderedIds));
+    };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over, delta } = event;
@@ -87,12 +121,19 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
         if (active.id !== over?.id) {
             const oldIndex = tasks.findIndex((t) => t.id === active.id);
             const newIndex = tasks.findIndex((t) => t.id === over?.id);
-            setTasks((tasks) => arrayMove(tasks, oldIndex, newIndex));
+            const newTasks = arrayMove(tasks, oldIndex, newIndex);
+
+            setTasks(newTasks);
+            saveOrder(newTasks.map((t) => t.id));
         }
     };
 
     const handleRemove = (id: string) => {
-        setTasks((prev) => prev.filter((task) => task.id !== id));
+        setTasks((prev) => {
+            const updated = prev.filter((task) => task.id !== id);
+            saveOrder(updated.map((t) => t.id));
+            return updated;
+        });
     };
 
     return (

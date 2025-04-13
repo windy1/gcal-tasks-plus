@@ -87,12 +87,11 @@ const AppContent = () => {
                 <HeaderContent>
                     <Title>Google Calendar Tasks Plus</Title>
                     {token && <Button onClick={signOut}>Sign Out</Button>}
+                    {!token && <Button onClick={() => login()}>Sign in</Button>}
                 </HeaderContent>
             </Header>
 
             <MainContent>
-                {!token && <Button onClick={() => login()}>Sign in with Google</Button>}
-
                 {token && loading && <Spinner />}
 
                 {token && !loading && !selectedTaskList && (
