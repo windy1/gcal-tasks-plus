@@ -1,2 +1,2 @@
-export * from "./SortableItem";
+export * from "./TaskItem";
 export * from "./Tasks";

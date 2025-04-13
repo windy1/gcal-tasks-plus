@@ -13,7 +13,7 @@ import {
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { SortableItem } from "./SortableItem";
+import { TaskItem } from "./TaskItem";
 import { Spinner } from "../Spinner";
 
 const SwipeThreshold = 600;
@@ -151,7 +151,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                     >
                         <List ref={listRef}>
                             {tasks.map((task) => (
-                                <SortableItem
+                                <TaskItem
                                     key={task.id}
                                     task={task}
                                     swipeThreshold={SwipeThreshold}

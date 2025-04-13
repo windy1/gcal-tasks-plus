@@ -34,17 +34,13 @@ const Left = styled.div`
     gap: 0.75rem;
 `;
 
-interface SortableItemProps {
+interface TaskItemProps {
     task: Task;
     swipeThreshold: number;
     swipeOpacity: number;
 }
 
-export const SortableItem: React.FC<SortableItemProps> = ({
-    task,
-    swipeThreshold,
-    swipeOpacity,
-}) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, swipeThreshold, swipeOpacity }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: task.id,
     });
