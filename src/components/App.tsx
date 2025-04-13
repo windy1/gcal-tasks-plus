@@ -24,7 +24,7 @@ const Container = styled.div`
 
 const Header = styled.header`
     width: 100%;
-    background-color: #1e1e1e;
+    background-color: ${Palette.HeaderColor};
     border-bottom: 1px solid ${Palette.UtilityOrange};
     padding: 1rem 2rem;
     box-sizing: border-box;
@@ -40,7 +40,7 @@ const HeaderContent = styled.div`
 const Title = styled.h1`
     margin: 0;
     font-size: 1.75rem;
-    color: #ffffff;
+    color: ${Palette.White};
 `;
 
 const MainContent = styled.main`

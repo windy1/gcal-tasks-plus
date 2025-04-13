@@ -8,4 +8,5 @@ export default {
     ButtonShadowColor: "rgba(0, 123, 255, 0.5)",
     UtilityOrange: "#FF8C00",
     UtilityOrangeDark: "#c76d00",
+    HeaderColor: "#1e1e1e",
 };
