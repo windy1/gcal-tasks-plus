@@ -5,6 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import styled from "styled-components";
 import { Grip } from "lucide-react";
 
+const GripSize = 20;
+
 const ItemWrapper = styled.li<{ isDragging: boolean }>`
     display: flex;
     align-items: center;
@@ -14,11 +16,12 @@ const ItemWrapper = styled.li<{ isDragging: boolean }>`
     color: ${Palette.Black};
     padding: 1rem 1.25rem;
     font-size: 1.125rem;
-    transition: background-color 0.2s ease;
-    cursor: grab;
     font-weight: 650;
-    margin: 0;
     border-radius: 0;
+    cursor: grab;
+    transition: background-color 0.2s ease;
+    will-change: transform;
+    margin-block: 0.25rem;
 
     &:hover {
         background-color: ${Palette.UtilityOrangeDark};
@@ -30,8 +33,6 @@ const Left = styled.div`
     align-items: center;
     gap: 0.75rem;
 `;
-
-const GripSize = 20;
 
 interface SortableItemProps {
     task: Task;

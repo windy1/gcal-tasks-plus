@@ -11,7 +11,7 @@ import {
     Modifier,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { SortableItem } from "./SortableItem";
 import { Spinner } from "../Spinner";
@@ -34,15 +34,24 @@ const List = styled.ul`
     max-width: 1000px;
 `;
 
-const restrictVerticalAndRight: Modifier = ({ transform, draggingNodeRect, windowRect }) => {
-    const maxY = (windowRect?.height ?? 0) - (draggingNodeRect?.height ?? 0);
+const restrictVerticalAndRight = (listRef: React.RefObject<HTMLElement | null>): Modifier => {
+    return ({ transform, draggingNodeRect }) => {
+        const listRect = listRef.current?.getBoundingClientRect();
 
-    const restrictY = transform.x > VerticalAxisLockThreshold;
+        if (!listRect || !draggingNodeRect) return transform;
 
-    return {
-        ...transform,
-        x: Math.max(0, transform.x),
-        y: restrictY ? 0 : Math.min(Math.max(0, transform.y), maxY),
+        const minY = listRect.top - draggingNodeRect.top;
+        const maxY = listRect.bottom - draggingNodeRect.bottom;
+
+        const lockVertical =
+            Math.abs(transform.x) > VerticalAxisLockThreshold &&
+            Math.abs(transform.x) > Math.abs(transform.y);
+
+        return {
+            ...transform,
+            x: Math.max(0, transform.x),
+            y: lockVertical ? 0 : Math.max(minY, Math.min(transform.y, maxY)),
+        };
     };
 };
 
@@ -54,6 +63,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const token = localStorage.getItem(Auth.AccessToken);
+    const listRef = useRef<HTMLUListElement>(null);
 
     const sensors = useSensors(useSensor(PointerSensor));
 
@@ -91,14 +101,14 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
-                modifiers={[restrictVerticalAndRight]}
+                modifiers={[restrictVerticalAndRight(listRef)]}
             >
                 {!loading && (
                     <SortableContext
                         items={tasks.map((t) => t.id)}
                         strategy={verticalListSortingStrategy}
                     >
-                        <List>
+                        <List ref={listRef}>
                             {tasks.map((task) => (
                                 <SortableItem
                                     key={task.id}
