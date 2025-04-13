@@ -1,7 +1,6 @@
-import { Auth, Pallette } from "@/constants";
+import { Auth } from "@/constants";
 import { Task, TaskList } from "@/data";
 import { fetchTasks } from "@/hooks/fetch-tasks";
-import { Grip } from "lucide-react";
 import {
     DndContext,
     closestCenter,
@@ -11,17 +10,10 @@ import {
     DragEndEvent,
     Modifier,
 } from "@dnd-kit/core";
-import {
-    arrayMove,
-    SortableContext,
-    useSortable,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-
-// ---------- styled components ----------
+import { SortableItem } from "./SortableItem";
 
 const Container = styled.div`
     width: 100%;
@@ -37,64 +29,6 @@ const List = styled.ul`
     max-width: 1000px;
 `;
 
-const ItemWrapper = styled.li<{ isDragging: boolean }>`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: ${Pallette.UtilityOrange};
-    border: 1px solid ${Pallette.Black};
-    color: ${Pallette.Black};
-    padding: 1rem 1.25rem;
-    font-size: 1.125rem;
-    transition: background-color 0.2s ease;
-    cursor: grab;
-    font-weight: 650;
-    margin: 0;
-    border-radius: 0;
-    // opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
-
-    &:hover {
-        background-color: ${Pallette.UtilityOrangeDark};
-    }
-`;
-
-const Left = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-`;
-
-const SWIPE_THRESHOLD = 600;
-
-const SortableItem: React.FC<{ task: Task }> = ({ task }) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-        id: task.id,
-    });
-
-    const swipeOpacity = transform?.x && transform.x > SWIPE_THRESHOLD ? 0.5 : 1;
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: swipeOpacity,
-    };
-
-    return (
-        <ItemWrapper
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            {...listeners}
-            isDragging={isDragging}
-        >
-            <Left>
-                <Grip size={20} />
-                <span>{task.title}</span>
-            </Left>
-        </ItemWrapper>
-    );
-};
-
 const restrictVerticalAndRight: Modifier = ({ transform, draggingNodeRect, windowRect }) => {
     const maxY = (windowRect?.height ?? 0) - (draggingNodeRect?.height ?? 0);
 
@@ -106,6 +40,9 @@ const restrictVerticalAndRight: Modifier = ({ transform, draggingNodeRect, windo
         y: restrictY ? 0 : Math.min(Math.max(0, transform.y), maxY),
     };
 };
+
+const SwipeThreshold = 600;
+const SwipeOpacity = 0.5;
 
 interface TasksProps {
     taskList: TaskList;
@@ -125,7 +62,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
         const { active, over, delta } = event;
 
         // If swiped right past the threshold, remove the task
-        if (delta.x > SWIPE_THRESHOLD) {
+        if (delta.x > SwipeThreshold) {
             handleRemove(active.id as string);
             return;
         }
@@ -155,7 +92,12 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 >
                     <List>
                         {tasks.map((task) => (
-                            <SortableItem key={task.id} task={task} />
+                            <SortableItem
+                                key={task.id}
+                                task={task}
+                                swipeThreshold={SwipeThreshold}
+                                swipeOpacity={SwipeOpacity}
+                            />
                         ))}
                     </List>
                 </SortableContext>

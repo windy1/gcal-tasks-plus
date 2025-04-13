@@ -10,7 +10,7 @@ import {
 import { TaskList } from "@/data";
 import { TaskLists } from "./TaskLists";
 import { Button } from "./Button";
-import { Tasks } from "./Tasks";
+import { Tasks } from "./tasks/Tasks";
 
 const Container = styled.div`
     height: 100vh;
