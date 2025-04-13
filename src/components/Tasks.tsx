@@ -19,6 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 
 // ---------- styled components ----------
 
@@ -117,6 +118,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
+                modifiers={[restrictToParentElement]}
             >
                 <SortableContext
                     items={tasks.map((t) => t.id)}
