@@ -45,7 +45,9 @@ const AppContent = () => {
     useEffect(() => handleTokenExpiration(setToken), []);
 
     useEffect(() => {
-        if (!token) return;
+        if (!token) {
+            return;
+        }
 
         setLoading(true);
 

@@ -14,6 +14,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-ki
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { SortableItem } from "./SortableItem";
+import { Spinner } from "../Spinner";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -51,12 +52,18 @@ interface TasksProps {
 
 export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
     const token = localStorage.getItem(Auth.AccessToken);
 
     const sensors = useSensors(useSensor(PointerSensor));
 
     useEffect(() => {
-        fetchTasks(token!, taskList, setTasks);
+        setLoading(true);
+
+        fetchTasks(token, taskList, (tasks) => {
+            setTasks(tasks);
+            setLoading(false);
+        });
     }, [token, taskList]);
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -86,21 +93,25 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 onDragEnd={handleDragEnd}
                 modifiers={[restrictVerticalAndRight]}
             >
-                <SortableContext
-                    items={tasks.map((t) => t.id)}
-                    strategy={verticalListSortingStrategy}
-                >
-                    <List>
-                        {tasks.map((task) => (
-                            <SortableItem
-                                key={task.id}
-                                task={task}
-                                swipeThreshold={SwipeThreshold}
-                                swipeOpacity={SwipeOpacity}
-                            />
-                        ))}
-                    </List>
-                </SortableContext>
+                {!loading && (
+                    <SortableContext
+                        items={tasks.map((t) => t.id)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <List>
+                            {tasks.map((task) => (
+                                <SortableItem
+                                    key={task.id}
+                                    task={task}
+                                    swipeThreshold={SwipeThreshold}
+                                    swipeOpacity={SwipeOpacity}
+                                />
+                            ))}
+                        </List>
+                    </SortableContext>
+                )}
+
+                {loading && <Spinner />}
             </DndContext>
         </Container>
     );
