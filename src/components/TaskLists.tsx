@@ -1,7 +1,7 @@
 import { TaskList } from "@/data";
 import React from "react";
 import styled from "styled-components";
-import { Pallette } from "@/constants";
+import { Palette } from "@/constants";
 
 const Container = styled.div`
     width: 100%;
@@ -22,12 +22,12 @@ const Item = styled.li`
     padding: 1rem 1.25rem;
     font-size: 1.125rem;
     line-height: 1.6;
-    border-bottom: 1px solid ${Pallette.White};
+    border-bottom: 1px solid ${Palette.White};
     transition: background-color 0.3s ease;
     cursor: pointer;
 
     &:hover {
-        background-color: ${Pallette.BackgroundColorDark};
+        background-color: ${Palette.BackgroundColorDark};
     }
 
     &:last-child {

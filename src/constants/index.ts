@@ -1,5 +1,5 @@
 import * as Auth from "./auth";
-import Pallette from "./pallette";
+import Palette from "./palette";
 
 export { Auth };
-export { Pallette };
+export { Palette };

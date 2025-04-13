@@ -1,5 +1,5 @@
 import { CSS } from "@dnd-kit/utilities";
-import { Pallette } from "@/constants";
+import { Palette } from "@/constants";
 import { Task } from "@/data";
 import { useSortable } from "@dnd-kit/sortable";
 import styled from "styled-components";
@@ -9,9 +9,9 @@ const ItemWrapper = styled.li<{ isDragging: boolean }>`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: ${Pallette.UtilityOrange};
-    border: 1px solid ${Pallette.Black};
-    color: ${Pallette.Black};
+    background-color: ${Palette.UtilityOrange};
+    border: 1px solid ${Palette.Black};
+    color: ${Palette.Black};
     padding: 1rem 1.25rem;
     font-size: 1.125rem;
     transition: background-color 0.2s ease;
@@ -21,7 +21,7 @@ const ItemWrapper = styled.li<{ isDragging: boolean }>`
     border-radius: 0;
 
     &:hover {
-        background-color: ${Pallette.UtilityOrangeDark};
+        background-color: ${Palette.UtilityOrangeDark};
     }
 `;
 
