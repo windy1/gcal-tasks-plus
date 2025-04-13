@@ -11,6 +11,7 @@ import { TaskList } from "@/data";
 import { TaskLists } from "./TaskLists";
 import { Button } from "./Button";
 import { Tasks } from "./tasks/Tasks";
+import { Spinner } from "./Spinner";
 
 const Container = styled.div`
     height: 100vh;
@@ -32,6 +33,7 @@ const AppContent = () => {
     const [token, setToken] = useState<string | null>(null);
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
     const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const login = useGoogleLoginWithStorage(setToken);
 
@@ -41,7 +43,17 @@ const AppContent = () => {
     };
 
     useEffect(() => handleTokenExpiration(setToken), []);
-    useEffect(() => fetchTaskLists(token, setTaskLists), [token]);
+
+    useEffect(() => {
+        if (!token) return;
+
+        setLoading(true);
+
+        fetchTaskLists(token, (lists) => {
+            setTaskLists(lists);
+            setLoading(false);
+        });
+    }, [token]);
 
     return (
         <Container>
@@ -54,7 +66,9 @@ const AppContent = () => {
 
             {!token && <Button onClick={() => login()}>Sign in with Google</Button>}
 
-            {token && !selectedTaskList && (
+            {token && loading && <Spinner />}
+
+            {token && !loading && !selectedTaskList && (
                 <TaskLists taskLists={taskLists} setSelectedTaskList={setSelectedTaskList} />
             )}
 
