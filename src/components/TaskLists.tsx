@@ -40,16 +40,14 @@ interface TaskListsProps {
     setSelectedTaskList: (taskList: TaskList) => void;
 }
 
-export const TaskLists: React.FC<TaskListsProps> = ({ taskLists, setSelectedTaskList }) => {
-    return (
-        <Container>
-            <List>
-                {taskLists.map((list) => (
-                    <Item key={list.id} onClick={() => setSelectedTaskList(list)}>
-                        {list.title}
-                    </Item>
-                ))}
-            </List>
-        </Container>
-    );
-};
+export const TaskLists: React.FC<TaskListsProps> = ({ taskLists, setSelectedTaskList }) => (
+    <Container>
+        <List>
+            {taskLists.map((list) => (
+                <Item key={list.id} onClick={() => setSelectedTaskList(list)}>
+                    {list.title}
+                </Item>
+            ))}
+        </List>
+    </Container>
+);
