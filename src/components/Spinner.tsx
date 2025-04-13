@@ -1,7 +1,15 @@
 import { Palette } from "@/constants";
 import styled from "styled-components";
 
-export const Spinner = styled.div`
+const SpinnerWrapper = styled.div`
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+`;
+
+const SpinnerCircle = styled.div`
     border: 4px solid ${Palette.White};
     border-left-color: ${Palette.ButtonColor};
     border-radius: 50%;
@@ -15,3 +23,9 @@ export const Spinner = styled.div`
         }
     }
 `;
+
+export const Spinner = () => (
+    <SpinnerWrapper>
+        <SpinnerCircle />
+    </SpinnerWrapper>
+);
