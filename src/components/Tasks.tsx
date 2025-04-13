@@ -9,6 +9,7 @@ import {
     useSensor,
     useSensors,
     DragEndEvent,
+    Modifier,
 } from "@dnd-kit/core";
 import {
     arrayMove,
@@ -19,7 +20,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { restrictToParentElement } from "@dnd-kit/modifiers";
 
 // ---------- styled components ----------
 
@@ -51,7 +51,8 @@ const ItemWrapper = styled.li<{ isDragging: boolean }>`
     font-weight: 650;
     margin: 0;
     border-radius: 0;
-    opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
+    // opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
+
     &:hover {
         background-color: ${Pallette.UtilityOrangeDark};
     }
@@ -63,14 +64,19 @@ const Left = styled.div`
     gap: 0.75rem;
 `;
 
+const SWIPE_THRESHOLD = 600;
+
 const SortableItem: React.FC<{ task: Task }> = ({ task }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: task.id,
     });
 
+    const swipeOpacity = transform?.x && transform.x > SWIPE_THRESHOLD ? 0.5 : 1;
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
+        opacity: swipeOpacity,
     };
 
     return (
@@ -89,6 +95,18 @@ const SortableItem: React.FC<{ task: Task }> = ({ task }) => {
     );
 };
 
+const restrictVerticalAndRight: Modifier = ({ transform, draggingNodeRect, windowRect }) => {
+    const maxY = (windowRect?.height ?? 0) - (draggingNodeRect?.height ?? 0);
+
+    const restrictY = transform.x > 0; // if swiping right, lock vertical movement
+
+    return {
+        ...transform,
+        x: Math.max(0, transform.x),
+        y: restrictY ? 0 : Math.min(Math.max(0, transform.y), maxY),
+    };
+};
+
 interface TasksProps {
     taskList: TaskList;
 }
@@ -104,12 +122,23 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     }, [token, taskList]);
 
     const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
+        const { active, over, delta } = event;
+
+        // If swiped right past the threshold, remove the task
+        if (delta.x > SWIPE_THRESHOLD) {
+            handleRemove(active.id as string);
+            return;
+        }
+
         if (active.id !== over?.id) {
             const oldIndex = tasks.findIndex((t) => t.id === active.id);
             const newIndex = tasks.findIndex((t) => t.id === over?.id);
             setTasks((tasks) => arrayMove(tasks, oldIndex, newIndex));
         }
+    };
+
+    const handleRemove = (id: string) => {
+        setTasks((prev) => prev.filter((task) => task.id !== id));
     };
 
     return (
@@ -118,7 +147,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
-                modifiers={[restrictToParentElement]}
+                modifiers={[restrictVerticalAndRight]}
             >
                 <SortableContext
                     items={tasks.map((t) => t.id)}
