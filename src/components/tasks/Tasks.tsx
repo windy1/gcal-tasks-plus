@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import styled from "styled-components";
 import { TaskItem } from "./TaskItem";
 import { Spinner } from "../Spinner";
-import { LocalOrderContext } from "./LocalOrderContext";
+import { LocalOrderContext } from "@/contexts/LocalOrderContext";
 import { TaskApi } from "@/services";
 
 const SwipeThreshold = 600;

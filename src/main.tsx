@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { App } from "./components";
 import axios from "axios";
 import { delay } from "./utils";
-import { GlobalStyle } from "./components/GlobalStyle";
+import { GlobalStyle } from "./global-style";
 
 const Root = "root";
 

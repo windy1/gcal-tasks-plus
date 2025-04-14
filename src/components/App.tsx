@@ -1,14 +1,16 @@
 import styled from "styled-components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useGoogleLoginWithStorage } from "@/hooks";
 import { TaskList } from "@/data";
 import { TaskLists } from "./TaskLists";
 import { Button } from "./Button";
 import { Tasks } from "./tasks/Tasks";
 import { Spinner } from "./Spinner";
 import { Palette } from "@/constants";
-import { Auth, TaskApi } from "@/services";
+import { TaskApi } from "@/services";
+import { AuthContext } from "@/contexts/auth";
+import { useContext } from "@/hooks";
+import { AuthProvider } from "@/providers";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -75,21 +77,17 @@ const AppContent = () => {
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
     const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const isAuthenticated = Auth.isAuthenticated();
+    const { isAuthenticated, login, signOut } = useContext(AuthContext);
 
-    const login = useGoogleLoginWithStorage();
-
-    const signOut = () => {
-        Auth.clearToken();
+    const reset = () => {
         setTaskLists([]);
+        setSelectedTaskList(null);
+        setLoading(false);
     };
 
     useEffect(() => {
-        Auth.checkToken();
-    }, []);
-
-    useEffect(() => {
         if (!isAuthenticated) {
+            reset();
             return;
         }
 
@@ -130,6 +128,8 @@ const AppContent = () => {
 
 export const App = () => (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT_ID}>
-        <AppContent />
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     </GoogleOAuthProvider>
 );
