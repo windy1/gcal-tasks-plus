@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useGoogleLoginWithStorage } from "@/hooks";
 import { TaskList } from "@/data";
 import { TaskLists } from "./TaskLists";
@@ -53,7 +53,7 @@ interface AuthContentProps {
     loading: boolean;
     selectedTaskList: TaskList | null;
     taskLists: TaskList[];
-    setSelectedTaskList: (taskList: TaskList | null) => void;
+    setSelectedTaskList: Dispatch<SetStateAction<TaskList | null>>;
 }
 
 const AuthContent = ({

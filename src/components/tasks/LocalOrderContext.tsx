@@ -17,6 +17,7 @@ interface LocalOrderContextProps {
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
     setLoading: Dispatch<SetStateAction<boolean>>;
+    onRemove: (task: Task) => void;
     listRef: React.RefObject<HTMLUListElement | null>;
     children: React.ReactNode;
 }
@@ -27,6 +28,7 @@ export const LocalOrderContext = ({
     tasks,
     setTasks,
     setLoading,
+    onRemove,
     listRef,
     children,
 }: LocalOrderContextProps) => {
@@ -73,6 +75,7 @@ export const LocalOrderContext = ({
         setTasks((prev: Task[]) => {
             const updated = prev.filter((task) => task.id !== id);
             storage.save(updated.map((t) => t.id));
+            onRemove(prev.find((task) => task.id === id) as Task);
             return updated;
         });
     };

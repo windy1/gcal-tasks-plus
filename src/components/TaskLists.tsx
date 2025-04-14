@@ -1,5 +1,5 @@
 import { TaskList } from "@/data";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
 import { Palette } from "@/constants";
 
@@ -37,7 +37,7 @@ const Item = styled.li`
 
 interface TaskListsProps {
     taskLists: TaskList[];
-    setSelectedTaskList: (taskList: TaskList) => void;
+    setSelectedTaskList: Dispatch<SetStateAction<TaskList | null>>;
 }
 
 export const TaskLists: React.FC<TaskListsProps> = ({ taskLists, setSelectedTaskList }) => (

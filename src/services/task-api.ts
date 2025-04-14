@@ -16,8 +16,11 @@ export const fetchTaskLists = (): Promise<TaskList[]> => get(Urls.taskLists, Tas
 export const fetchTasks = (taskList: TaskList): Promise<Task[]> =>
     get(Urls.tasks(taskList.id), TaskSchema);
 
-export const updateTask = async (taskListId: string, taskId: string, task: Task) => {
-    const url = Urls.updateTask(taskListId, taskId);
+export const completeTask = (taskListId: string, task: Task) =>
+    updateTask(taskListId, { ...task, completed: new Date().toISOString() });
+
+const updateTask = async (taskListId: string, task: Task) => {
+    const url = Urls.updateTask(taskListId, task.id);
     const token = Auth.getToken();
 
     if (!token) {

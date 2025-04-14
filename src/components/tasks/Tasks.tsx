@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { TaskItem } from "./TaskItem";
 import { Spinner } from "../Spinner";
 import { LocalOrderContext } from "./LocalOrderContext";
+import { TaskApi } from "@/services";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -31,6 +32,8 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const listRef = useRef<HTMLUListElement>(null);
 
+    const onRemove = (task: Task) => TaskApi.completeTask(taskList.id, task);
+
     return (
         <Container>
             <LocalOrderContext
@@ -39,6 +42,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 tasks={tasks}
                 setTasks={setTasks}
                 setLoading={setLoading}
+                onRemove={onRemove}
                 listRef={listRef}
             >
                 {!loading && (
