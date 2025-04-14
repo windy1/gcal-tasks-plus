@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Auth } from "@/services";
 import { useGoogleLoginWithStorage } from "@/hooks";
-import { AuthContext } from "@/contexts/auth";
+import { AuthContext } from "@/contexts";
 
 interface AuthProviderProps {
     children: React.ReactNode;

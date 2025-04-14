@@ -1,5 +1,4 @@
-import React from "react";
-import { Context } from "react";
+import React, { Context } from "react";
 
 export const useContext = <TContext>(context: Context<TContext>) => {
     const ctx = React.useContext(context);
