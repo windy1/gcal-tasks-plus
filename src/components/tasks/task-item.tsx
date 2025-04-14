@@ -7,7 +7,7 @@ import { Grip } from "lucide-react";
 
 const GripSize = 20;
 
-const ItemWrapper = styled.li<{ isDragging: boolean }>`
+const ItemWrapper = styled.li`
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -41,7 +41,7 @@ interface TaskItemProps {
 }
 
 export const TaskItem: React.FC<TaskItemProps> = ({ task, swipeThreshold, swipeOpacity }) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
         id: task.id,
     });
 
@@ -54,13 +54,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, swipeThreshold, swipeO
     };
 
     return (
-        <ItemWrapper
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            {...listeners}
-            isDragging={isDragging}
-        >
+        <ItemWrapper ref={setNodeRef} style={style} {...attributes} {...listeners}>
             <Left>
                 <Grip size={GripSize} />
                 <span>{task.title}</span>
