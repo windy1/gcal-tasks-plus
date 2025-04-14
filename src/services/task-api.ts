@@ -3,18 +3,20 @@ import { Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
 import { z } from "zod";
 import { Auth } from ".";
 
+const MaxTasks = 100;
+
 const Urls = {
     taskLists: "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
     tasks: (taskListId: string) =>
-        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks`,
+        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?maxResults=${MaxTasks}`,
     updateTask: (taskListId: string, taskId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`,
 };
 
 export const fetchTaskLists = (): Promise<TaskList[]> => get(Urls.taskLists, TaskListSchema);
 
-export const fetchTasks = (taskList: TaskList): Promise<Task[]> =>
-    get(Urls.tasks(taskList.id), TaskSchema);
+export const fetchTasks = async (taskList: TaskList): Promise<Task[]> =>
+    (await get(Urls.tasks(taskList.id), TaskSchema)).filter((task) => task.title.trim() !== "");
 
 export const completeTask = (taskListId: string, task: Task) =>
     updateTask(taskListId, { ...task, completed: new Date().toISOString() });

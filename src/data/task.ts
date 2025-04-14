@@ -11,7 +11,7 @@ export const TaskSchema = z.object({
     selfLink: z.string().url(),
     position: z.string(),
     status: z.string(),
-    due: z.string().datetime(),
+    due: z.string().datetime().optional().nullable(),
     completed: z.string().datetime().optional().nullable(),
     links: z.array(z.unknown()),
     webViewLink: z.string().url(),
