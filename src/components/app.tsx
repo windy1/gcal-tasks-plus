@@ -7,7 +7,8 @@ import { TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
-import { Button, Spinner, TaskLists, Tasks } from ".";
+import { Spinner, TaskLists, Tasks } from ".";
+import { Button } from "@mui/material";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -104,8 +105,16 @@ const AppContent = () => {
             <Header>
                 <HeaderContent>
                     <Title>Google Calendar Tasks Plus</Title>
-                    {isAuthenticated && <Button onClick={signOut}>Sign Out</Button>}
-                    {!isAuthenticated && <Button onClick={() => login()}>Sign in</Button>}
+                    {isAuthenticated && (
+                        <Button color="primary" variant="contained" onClick={signOut}>
+                            Sign Out
+                        </Button>
+                    )}
+                    {!isAuthenticated && (
+                        <Button color="primary" variant="contained" onClick={login}>
+                            Sign in
+                        </Button>
+                    )}
                 </HeaderContent>
             </Header>
 
