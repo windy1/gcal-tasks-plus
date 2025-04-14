@@ -8,11 +8,14 @@ const MaxTasks = 100;
 const Get = "GET";
 const Post = "POST";
 const Put = "PUT";
+const Completed = "completed";
+const ShowCompleted = false;
 
 const Urls = {
     taskLists: "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
     tasks: (taskListId: string) =>
-        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?maxResults=${MaxTasks}`,
+        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?maxResults=${MaxTasks}` +
+        `&showCompleted=${ShowCompleted}`,
     updateTask: (taskListId: string, taskId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`,
     createTask: (taskListId: string) =>
@@ -27,7 +30,7 @@ export const fetchTasks = async (taskList: TaskList): Promise<Task[]> => {
 };
 
 export const completeTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
-    updateTask(taskList, { ...task, completed: new Date().toISOString() });
+    updateTask(taskList, { ...task, completed: new Date().toISOString(), status: Completed });
 
 export const createTask = (taskList: TaskList, task: CreateTaskPayload): Promise<Task | null> =>
     post(Urls.createTask(taskList.id), TaskSchema, task);
