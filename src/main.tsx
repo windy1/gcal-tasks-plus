@@ -5,6 +5,8 @@ import { App } from "./components";
 import axios from "axios";
 import { delay } from "./utils";
 
+const Root = "root";
+
 if (import.meta.env.DEV) {
     axios.interceptors.request.use(async (config) => {
         await delay(import.meta.env.VITE_NETWORK_LATENCY);
@@ -12,7 +14,7 @@ if (import.meta.env.DEV) {
     });
 }
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById(Root)!).render(
     <StrictMode>
         <App />
     </StrictMode>,

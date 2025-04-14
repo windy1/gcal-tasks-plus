@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
 import { z } from "zod";
-import { getAuthorization } from "@/utils/auth";
 import { Auth } from ".";
 
 const Urls = {
@@ -54,6 +53,6 @@ const get = async <TResource>(url: string, schema: z.ZodSchema<TResource>) => {
 
 const getConfig = (token: string) => ({
     headers: {
-        Authorization: getAuthorization(token),
+        Authorization: `Bearer ${token}`,
     },
 });

@@ -1,7 +1,9 @@
 import { z } from "zod";
 
+const Kind = "tasks#task";
+
 export const TaskSchema = z.object({
-    kind: z.literal("tasks#task"),
+    kind: z.literal(Kind),
     id: z.string(),
     etag: z.string(),
     title: z.string(),
