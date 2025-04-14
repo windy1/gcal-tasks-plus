@@ -1,9 +1,9 @@
 import { Task, TaskList } from "@/data";
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import { TaskItem } from "./TaskItem";
-import { Spinner } from "../Spinner";
-import { LocalOrderContext } from "@/contexts/LocalOrderContext";
+import { TaskItem } from "./task-item";
+import { Spinner } from "../spinner";
+import { LocalOrderContext } from "@/contexts/local-order";
 import { TaskApi } from "@/services";
 
 const SwipeThreshold = 600;
