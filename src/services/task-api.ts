@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
-import { NewTask, Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
+import { CreateTaskPayload, Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
 import { z } from "zod";
 import { Auth } from ".";
 import _ from "lodash";
@@ -16,7 +16,7 @@ const Urls = {
     updateTask: (taskListId: string, taskId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`,
     createTask: (taskListId: string) =>
-        `https://tasks.googleapis.com/tasks/v1/lists${taskListId}/tasks`,
+        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks`,
 };
 
 export const fetchTaskLists = (): Promise<TaskList[]> => get(Urls.taskLists, TaskListSchema);
@@ -29,7 +29,7 @@ export const fetchTasks = async (taskList: TaskList): Promise<Task[]> => {
 export const completeTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
     updateTask(taskList, { ...task, completed: new Date().toISOString() });
 
-export const createTask = (taskList: TaskList, task: NewTask): Promise<Task | null> =>
+export const createTask = (taskList: TaskList, task: CreateTaskPayload): Promise<Task | null> =>
     post(Urls.createTask(taskList.id), TaskSchema, task);
 
 const updateTask = (taskList: TaskList, task: Task): Promise<Task | null> =>

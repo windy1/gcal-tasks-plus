@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, KeyboardEvent, Dispatch, SetStateAction } 
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "styled-components";
 import { TaskApi } from "@/services";
-import { CreateNewTask as PrepareNewTask, Task, TaskList } from "@/data";
+import { NewCreateTaskPayload, Task, TaskList } from "@/data";
 
 const Enter = "Enter";
 
@@ -51,7 +51,7 @@ export const NewTaskInput = ({
 
             if (newTaskTitle.trim()) {
                 console.log("New task:", newTaskTitle);
-                const newTask = PrepareNewTask(newTaskTitle);
+                const newTask = NewCreateTaskPayload(newTaskTitle);
                 TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
                 setNewTaskTitle("");
                 setAddingTask(false);

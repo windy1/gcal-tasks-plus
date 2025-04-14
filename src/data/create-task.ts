@@ -1,11 +1,11 @@
 import { TaskApiConstants } from "@/constants";
 
-export interface NewTask {
+export interface CreateTaskPayload {
     kind: string;
     title: string;
 }
 
-export const CreateNewTask = (title: string): NewTask => ({
+export const NewCreateTaskPayload = (title: string): CreateTaskPayload => ({
     kind: TaskApiConstants.TaskKind,
     title,
 });
