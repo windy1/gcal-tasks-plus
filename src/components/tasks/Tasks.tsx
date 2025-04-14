@@ -1,6 +1,4 @@
-import { Auth } from "@/constants";
 import { Task, TaskList } from "@/data";
-import { fetchTasks } from "@/hooks/fetch-tasks";
 import {
     DndContext,
     closestCenter,
@@ -15,6 +13,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { TaskItem } from "./TaskItem";
 import { Spinner } from "../Spinner";
+import { Auth, TaskApi } from "@/services";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -80,7 +79,7 @@ interface TasksProps {
 export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const token = localStorage.getItem(Auth.AccessToken);
+    const token = Auth.getToken();
     const listRef = useRef<HTMLUListElement>(null);
     const taskOrderStorageKey = TaskOrderStorageKey(taskList);
 
@@ -88,6 +87,8 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
 
     const onTasksFetched = useCallback(
         (fetchedTasks: Task[]) => {
+            console.debug("Tasks fetched:", fetchedTasks);
+
             const savedOrder = localStorage.getItem(taskOrderStorageKey);
             let orderedTasks = fetchedTasks;
 
@@ -102,8 +103,9 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     );
 
     useEffect(() => {
+        console.debug("Fetching tasks for list:", taskList);
         setLoading(true);
-        fetchTasks(token, taskList, onTasksFetched);
+        TaskApi.fetchTasks(taskList).then(onTasksFetched);
     }, [token, taskList, taskOrderStorageKey, onTasksFetched]);
 
     const saveOrder = (orderedIds: string[]) => {

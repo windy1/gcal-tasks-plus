@@ -1,18 +1,14 @@
 import styled from "styled-components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from "react";
-import {
-    fetchTaskLists,
-    handleGoogleSignOut,
-    handleTokenExpiration,
-    useGoogleLoginWithStorage,
-} from "@/hooks";
+import { useGoogleLoginWithStorage } from "@/hooks";
 import { TaskList } from "@/data";
 import { TaskLists } from "./TaskLists";
 import { Button } from "./Button";
 import { Tasks } from "./tasks/Tasks";
 import { Spinner } from "./Spinner";
 import { Palette } from "@/constants";
+import { Auth, TaskApi } from "@/services";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -54,29 +50,34 @@ const MainContent = styled.main`
 `;
 
 const AppContent = () => {
-    const [token, setToken] = useState<string | null>(null);
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
     const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const token = Auth.getToken();
 
-    const login = useGoogleLoginWithStorage(setToken);
+    const login = useGoogleLoginWithStorage();
 
     const signOut = () => {
-        handleGoogleSignOut(setToken);
+        Auth.clearToken();
         setTaskLists([]);
     };
 
-    useEffect(() => handleTokenExpiration(setToken), []);
+    useEffect(() => {
+        Auth.checkToken();
+    }, []);
 
     useEffect(() => {
         if (!token) {
             return;
         }
 
+        console.debug("Fetching task lists...");
+
         setLoading(true);
 
-        fetchTaskLists(token, (lists) => {
-            setTaskLists(lists);
+        TaskApi.fetchTaskLists().then((taskLists) => {
+            console.debug("Task lists fetched:", taskLists);
+            setTaskLists(taskLists);
             setLoading(false);
         });
     }, [token]);
