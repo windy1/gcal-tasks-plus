@@ -1,12 +1,14 @@
 import { Task, TaskList } from "@/data";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { TaskApi } from "@/services";
 import { TaskItem } from ".";
 import { Spinner } from "..";
 import { LocalOrderContext } from "@/contexts";
-import { Fab } from "@mui/material";
+import { Fab, IconButton, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import { Palette } from "@/constants";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -33,6 +35,13 @@ const StyledFab = styled(Fab)`
     z-index: 1000;
 `;
 
+const InputRow = styled.li`
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+`;
+
 interface TasksProps {
     taskList: TaskList;
 }
@@ -40,13 +49,27 @@ interface TasksProps {
 export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
+    const [newTaskTitle, setNewTaskTitle] = useState<string>("");
     const listRef = useRef<HTMLUListElement>(null);
+    const newTaskInputRef = useRef<HTMLInputElement>(null);
 
     const onRemove = (task: Task) => TaskApi.completeTask(taskList.id, task);
 
     const handleAddTask = () => {
-        console.log("Add Task button clicked");
+        setIsAddingTask(true);
     };
+
+    const handleCancelAdd = () => {
+        setIsAddingTask(false);
+        setNewTaskTitle("");
+    };
+
+    useEffect(() => {
+        if (isAddingTask && newTaskInputRef.current) {
+            newTaskInputRef.current.focus();
+        }
+    }, [isAddingTask]);
 
     return (
         <Container>
@@ -61,6 +84,25 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
             >
                 {!loading && (
                     <List ref={listRef}>
+                        {isAddingTask && (
+                            <InputRow>
+                                <TextField
+                                    fullWidth
+                                    variant="outlined"
+                                    size="small"
+                                    placeholder="New task title"
+                                    inputRef={newTaskInputRef}
+                                    value={newTaskTitle}
+                                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                                    sx={{
+                                        input: { color: Palette.White },
+                                    }}
+                                />
+                                <IconButton onClick={handleCancelAdd}>
+                                    <CloseIcon sx={{ color: Palette.White }} />
+                                </IconButton>
+                            </InputRow>
+                        )}
                         {tasks.map((task) => (
                             <TaskItem
                                 key={task.id}
