@@ -40,7 +40,7 @@ export const LocalOrderContext = ({
     const sensors = useSensors(useSensor(PointerSensor));
     const storage = useMemo(() => new TaskOrderStorage(taskList), [taskList]);
 
-    const saveOrder = useCallback(
+    const loadOrder = useCallback(
         (tasks: Task[]) => {
             const savedOrder = storage.get();
             let orderedTasks = tasks;
@@ -54,13 +54,21 @@ export const LocalOrderContext = ({
         [setTasks, storage],
     );
 
+    const saveOrder = useCallback(
+        (ids: string[]) => {
+            console.log("Saving order:", ids);
+            storage.save(ids);
+        },
+        [storage],
+    );
+
     const onTasksFetched = useCallback(
         (fetchedTasks: Task[]) => {
             console.debug("Tasks fetched:", fetchedTasks);
-            saveOrder(fetchedTasks);
+            loadOrder(fetchedTasks);
             setLoading(false);
         },
-        [saveOrder, setLoading],
+        [loadOrder, setLoading],
     );
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -77,14 +85,14 @@ export const LocalOrderContext = ({
             const newTasks = arrayMove(tasks, oldIndex, newIndex);
 
             setTasks(newTasks);
-            storage.save(newTasks.map((t) => t.id));
+            saveOrder(newTasks.map((t) => t.id));
         }
     };
 
     const handleRemove = (id: string) => {
         setTasks((prev: Task[]) => {
             const updated = prev.filter((task) => task.id !== id);
-            storage.save(updated.map((t) => t.id));
+            saveOrder(updated.map((t) => t.id));
             onRemove(prev.find((task) => task.id === id) as Task);
             return updated;
         });
@@ -98,10 +106,10 @@ export const LocalOrderContext = ({
 
     useEffect(() => {
         if (!isOrderSynced) {
-            storage.save(tasks.map((t) => t.id));
+            saveOrder(tasks.map((t) => t.id));
             setOrderSynced(true);
         }
-    }, [isOrderSynced, setOrderSynced, storage, tasks]);
+    }, [isOrderSynced, saveOrder, setOrderSynced, storage, tasks]);
 
     return (
         <DndContext
@@ -126,7 +134,11 @@ const orderTasks = (savedOrder: string, fetchedTasks: Task[], orderedTasks: Task
 
         const missing = fetchedTasks.filter((t) => !order.includes(t.id));
 
-        return [...orderedTasks, ...missing];
+        const rtn = [...orderedTasks, ...missing];
+
+        console.debug("Ordered tasks:", rtn);
+
+        return rtn;
     } catch (e) {
         console.warn("Failed to parse saved order:", e);
         return [];

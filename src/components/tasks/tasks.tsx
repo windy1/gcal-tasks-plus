@@ -41,7 +41,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
-    const [isOrderSynced, setOrderSynced] = useState<boolean>(false);
+    const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
     const listRef = useRef<HTMLUListElement>(null);
 
     const onRemove = (task: Task) => TaskApi.completeTask(taskList, task);
