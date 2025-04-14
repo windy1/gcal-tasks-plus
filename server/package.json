@@ -1,0 +1,26 @@
+{
+    "name": "gcal-tasks-plus-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "main.js",
+    "scripts": {
+        "dev": "ts-node src/main.ts",
+        "build": "tsc",
+        "start": "node dist/main.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/express": "^5.0.1",
+        "@types/node": "^22.14.1",
+        "eslint": "^9.24.0",
+        "eslint-config-prettier": "^10.1.2",
+        "eslint-plugin-import": "^2.31.0",
+        "prettier": "^3.5.3",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "express": "^5.1.0",
+        "ts-node": "^10.9.2"
+    }
+}
