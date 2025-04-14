@@ -41,9 +41,8 @@ export const NewTaskInput = ({ isAddingTask, setAddingTask }: NewTaskInputProps)
                 inputRef={newTaskInputRef}
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                sx={{
-                    input: { color: Palette.White },
-                }}
+                color="primary"
+                sx={{ input: { color: Palette.White } }}
             />
             <IconButton onClick={handleCancelAdd}>
                 <CloseIcon sx={{ color: Palette.White }} />
