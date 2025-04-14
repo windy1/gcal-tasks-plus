@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import { App } from "./components";
 import axios from "axios";
 import { delay } from "./utils";
+import { GlobalStyle } from "./components/GlobalStyle";
 
 const Root = "root";
 
@@ -16,6 +16,7 @@ if (import.meta.env.DEV) {
 
 createRoot(document.getElementById(Root)!).render(
     <StrictMode>
+        <GlobalStyle />
         <App />
     </StrictMode>,
 );

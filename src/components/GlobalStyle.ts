@@ -1,10 +1,14 @@
+import { Palette } from "@/constants";
+import { createGlobalStyle } from "styled-components";
+
+export const GlobalStyle = createGlobalStyle`
 :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
 
     color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
+    color: ${Palette.RootColor};
     background-color: #242424;
 
     font-synthesis: none;
@@ -15,12 +19,12 @@
 
 a {
     font-weight: 500;
-    color: #646cff;
+    color: ${Palette.LinkColor};
     text-decoration: inherit;
 }
 
 a:hover {
-    color: #535bf2;
+    color: ${Palette.LinkHoverColor};
 }
 
 body {
@@ -30,13 +34,4 @@ body {
     display: flex;
     flex-direction: column;
 }
-
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
-    a:hover {
-        color: #747bff;
-    }
-}
+`;
