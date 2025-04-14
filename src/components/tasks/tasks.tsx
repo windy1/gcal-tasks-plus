@@ -3,8 +3,8 @@ import { useRef, useState } from "react";
 import styled from "styled-components";
 import { LocalOrderContext } from "@/contexts/local-order";
 import { TaskApi } from "@/services";
-import { Spinner } from "..";
 import { TaskItem } from ".";
+import { Spinner } from "..";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
