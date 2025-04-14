@@ -41,12 +41,14 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
+    const [isOrderSynced, setOrderSynced] = useState<boolean>(false);
     const listRef = useRef<HTMLUListElement>(null);
 
     const onRemove = (task: Task) => TaskApi.completeTask(taskList, task);
 
     const onAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
+        setOrderSynced(false);
     };
 
     return (
@@ -58,6 +60,8 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 setTasks={setTasks}
                 setLoading={setLoading}
                 onRemove={onRemove}
+                isOrderSynced={isOrderSynced}
+                setOrderSynced={setOrderSynced}
                 listRef={listRef}
             >
                 {!loading && (

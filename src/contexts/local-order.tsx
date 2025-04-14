@@ -18,6 +18,8 @@ interface LocalOrderContextProps {
     setTasks: Dispatch<SetStateAction<Task[]>>;
     setLoading: Dispatch<SetStateAction<boolean>>;
     onRemove: (task: Task) => void;
+    isOrderSynced: boolean;
+    setOrderSynced: Dispatch<SetStateAction<boolean>>;
     listRef: React.RefObject<HTMLUListElement | null>;
     children: React.ReactNode;
 }
@@ -29,6 +31,8 @@ export const LocalOrderContext = ({
     setTasks,
     setLoading,
     onRemove,
+    isOrderSynced,
+    setOrderSynced,
     listRef,
     children,
 }: LocalOrderContextProps) => {
@@ -36,21 +40,27 @@ export const LocalOrderContext = ({
     const sensors = useSensors(useSensor(PointerSensor));
     const storage = useMemo(() => new TaskOrderStorage(taskList), [taskList]);
 
-    const onTasksFetched = useCallback(
-        (fetchedTasks: Task[]) => {
-            console.debug("Tasks fetched:", fetchedTasks);
-
+    const saveOrder = useCallback(
+        (tasks: Task[]) => {
             const savedOrder = storage.get();
-            let orderedTasks = fetchedTasks;
+            let orderedTasks = tasks;
 
             if (savedOrder) {
-                orderedTasks = orderTasks(savedOrder, fetchedTasks, orderedTasks);
+                orderedTasks = orderTasks(savedOrder, tasks, orderedTasks);
             }
 
             setTasks(orderedTasks);
+        },
+        [setTasks, storage],
+    );
+
+    const onTasksFetched = useCallback(
+        (fetchedTasks: Task[]) => {
+            console.debug("Tasks fetched:", fetchedTasks);
+            saveOrder(fetchedTasks);
             setLoading(false);
         },
-        [setLoading, setTasks, storage],
+        [saveOrder, setLoading],
     );
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -85,6 +95,13 @@ export const LocalOrderContext = ({
         setLoading(true);
         TaskApi.fetchTasks(taskList).then(onTasksFetched);
     }, [isAuthenticated, taskList, onTasksFetched, setLoading]);
+
+    useEffect(() => {
+        if (!isOrderSynced) {
+            storage.save(tasks.map((t) => t.id));
+            setOrderSynced(true);
+        }
+    }, [isOrderSynced, setOrderSynced, storage, tasks]);
 
     return (
         <DndContext
