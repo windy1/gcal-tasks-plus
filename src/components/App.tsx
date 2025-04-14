@@ -49,11 +49,33 @@ const MainContent = styled.main`
     gap: 1rem;
 `;
 
+interface AuthContentProps {
+    loading: boolean;
+    selectedTaskList: TaskList | null;
+    taskLists: TaskList[];
+    setSelectedTaskList: (taskList: TaskList | null) => void;
+}
+
+const AuthContent = ({
+    loading,
+    selectedTaskList,
+    taskLists,
+    setSelectedTaskList,
+}: AuthContentProps) => (
+    <>
+        {loading && <Spinner />}
+        {!loading && !selectedTaskList && (
+            <TaskLists taskLists={taskLists} setSelectedTaskList={setSelectedTaskList} />
+        )}
+        {selectedTaskList && <Tasks taskList={selectedTaskList} />}
+    </>
+);
+
 const AppContent = () => {
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
     const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const token = Auth.getToken();
+    const isAuthenticated = Auth.isAuthenticated();
 
     const login = useGoogleLoginWithStorage();
 
@@ -67,7 +89,7 @@ const AppContent = () => {
     }, []);
 
     useEffect(() => {
-        if (!token) {
+        if (!isAuthenticated) {
             return;
         }
 
@@ -80,26 +102,27 @@ const AppContent = () => {
             setTaskLists(taskLists);
             setLoading(false);
         });
-    }, [token]);
+    }, [isAuthenticated]);
 
     return (
         <Container>
             <Header>
                 <HeaderContent>
                     <Title>Google Calendar Tasks Plus</Title>
-                    {token && <Button onClick={signOut}>Sign Out</Button>}
-                    {!token && <Button onClick={() => login()}>Sign in</Button>}
+                    {isAuthenticated && <Button onClick={signOut}>Sign Out</Button>}
+                    {!isAuthenticated && <Button onClick={() => login()}>Sign in</Button>}
                 </HeaderContent>
             </Header>
 
             <MainContent>
-                {token && loading && <Spinner />}
-
-                {token && !loading && !selectedTaskList && (
-                    <TaskLists taskLists={taskLists} setSelectedTaskList={setSelectedTaskList} />
+                {isAuthenticated && (
+                    <AuthContent
+                        loading={loading}
+                        selectedTaskList={selectedTaskList}
+                        taskLists={taskLists}
+                        setSelectedTaskList={setSelectedTaskList}
+                    />
                 )}
-
-                {token && selectedTaskList && <Tasks taskList={selectedTaskList} />}
             </MainContent>
         </Container>
     );

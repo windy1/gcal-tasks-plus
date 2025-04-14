@@ -30,3 +30,5 @@ export const setToken = (token: string, expiresIn: number) => {
     localStorage.setItem(AccessToken, token);
     localStorage.setItem(ExpiresAt, expiresAt.toString());
 };
+
+export const isAuthenticated = (): boolean => !!getToken();
