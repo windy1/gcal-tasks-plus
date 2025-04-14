@@ -1,9 +1,8 @@
+import { TaskApiConstants } from "@/constants";
 import { z } from "zod";
 
-const Kind = "tasks#task";
-
 export const TaskSchema = z.object({
-    kind: z.literal(Kind),
+    kind: z.literal(TaskApiConstants.TaskKind),
     id: z.string(),
     etag: z.string(),
     title: z.string(),

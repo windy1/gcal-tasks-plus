@@ -43,9 +43,11 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
     const listRef = useRef<HTMLUListElement>(null);
 
-    const onRemove = (task: Task) => TaskApi.completeTask(taskList.id, task);
+    const onRemove = (task: Task) => TaskApi.completeTask(taskList, task);
 
-    const handleAddTask = () => setAddingTask(true);
+    const onAdd = (task: Task) => {
+        setTasks((prevTasks) => [task, ...prevTasks]);
+    };
 
     return (
         <Container>
@@ -64,6 +66,8 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                             <NewTaskInput
                                 isAddingTask={isAddingTask}
                                 setAddingTask={setAddingTask}
+                                onAdd={onAdd}
+                                taskList={taskList}
                             />
                         )}
                         {tasks.map((task) => (
@@ -80,7 +84,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 {loading && <Spinner />}
             </LocalOrderContext>
 
-            <StyledFab color="primary" onClick={handleAddTask}>
+            <StyledFab color="primary" onClick={() => setAddingTask(true)}>
                 <AddIcon />
             </StyledFab>
         </Container>

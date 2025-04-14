@@ -1,9 +1,13 @@
-import axios from "axios";
-import { Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import { NewTask, Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
 import { z } from "zod";
 import { Auth } from ".";
+import _ from "lodash";
 
 const MaxTasks = 100;
+const Get = "GET";
+const Post = "POST";
+const Put = "PUT";
 
 const Urls = {
     taskLists: "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
@@ -11,50 +15,84 @@ const Urls = {
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?maxResults=${MaxTasks}`,
     updateTask: (taskListId: string, taskId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`,
+    createTask: (taskListId: string) =>
+        `https://tasks.googleapis.com/tasks/v1/lists${taskListId}/tasks`,
 };
 
 export const fetchTaskLists = (): Promise<TaskList[]> => get(Urls.taskLists, TaskListSchema);
 
-export const fetchTasks = async (taskList: TaskList): Promise<Task[]> =>
-    (await get(Urls.tasks(taskList.id), TaskSchema)).filter((task) => task.title.trim() !== "");
+export const fetchTasks = async (taskList: TaskList): Promise<Task[]> => {
+    const res = await get(Urls.tasks(taskList.id), TaskSchema);
+    return res.filter((task) => task.title.trim() !== "");
+};
 
-export const completeTask = (taskListId: string, task: Task) =>
-    updateTask(taskListId, { ...task, completed: new Date().toISOString() });
+export const completeTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
+    updateTask(taskList, { ...task, completed: new Date().toISOString() });
 
-const updateTask = async (taskListId: string, task: Task) => {
-    const url = Urls.updateTask(taskListId, task.id);
+export const createTask = (taskList: TaskList, task: NewTask): Promise<Task | null> =>
+    post(Urls.createTask(taskList.id), TaskSchema, task);
+
+const updateTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
+    put(Urls.updateTask(taskList.id, task.id), TaskSchema, task);
+
+const get = async <TResource>(
+    url: string,
+    schema: z.ZodSchema<TResource>,
+): Promise<TResource[]> => {
+    const res = await send(url, z.array(schema), Get, arrayRoot);
+    return res !== null ? res : [];
+};
+
+const put = <TResource>(
+    url: string,
+    schema: z.ZodSchema<TResource>,
+    data: unknown,
+): Promise<TResource | null> => send(url, schema, Put, objectRoot, data);
+
+const post = <TResource>(
+    url: string,
+    schema: z.ZodSchema<TResource>,
+    data: unknown,
+): Promise<TResource | null> => send(url, schema, Post, objectRoot, data);
+
+const send = async <TResource>(
+    url: string,
+    schema: z.ZodSchema<TResource>,
+    method: Method,
+    getContentRoot: (res: AxiosResponse) => unknown,
+    data: unknown | null = null,
+    additionalConfig: Partial<AxiosRequestConfig> = {},
+): Promise<TResource | null> => {
     const token = Auth.getToken();
 
     if (!token) {
-        return;
+        return null;
     }
 
     try {
-        const res = await axios.put(url, task, getConfig(token));
-        return TaskSchema.parse(res.data);
+        let config: AxiosRequestConfig = {
+            url,
+            method,
+            data,
+            ...getConfig(token),
+        };
+
+        config = _.merge(config, additionalConfig);
+
+        console.debug(`${method} ${url}`, config);
+
+        const res = await axios.request(config);
+        return schema.parse(getContentRoot(res));
     } catch (err) {
-        console.error(`Failed to update resource: ${url}`, err);
+        console.error(`Failed request: ${method} ${url}`, err);
         Auth.clearToken();
         return null;
     }
 };
 
-const get = async <TResource>(url: string, schema: z.ZodSchema<TResource>) => {
-    const token = Auth.getToken();
+const arrayRoot = (res: AxiosResponse) => res.data.items;
 
-    if (!token) {
-        return [];
-    }
-
-    try {
-        const res = await axios.get(url, getConfig(token));
-        return z.array(schema).parse(res.data.items);
-    } catch (err) {
-        console.error(`Failed to fetch resource: ${url}`, err);
-        Auth.clearToken();
-        return [];
-    }
-};
+const objectRoot = (res: AxiosResponse) => res.data;
 
 const getConfig = (token: string) => ({
     headers: {
