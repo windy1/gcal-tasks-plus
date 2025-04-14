@@ -1,10 +1,12 @@
 import { Task, TaskList } from "@/data";
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import { LocalOrderContext } from "@/contexts/local-order";
 import { TaskApi } from "@/services";
 import { TaskItem } from ".";
 import { Spinner } from "..";
+import { LocalOrderContext } from "@/contexts";
+import { Fab } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -13,6 +15,7 @@ const Container = styled.div`
     width: 100%;
     display: flex;
     justify-content: center;
+    position: relative;
 `;
 
 const List = styled.ul`
@@ -21,6 +24,13 @@ const List = styled.ul`
     margin: 1rem 0;
     width: 100%;
     max-width: 1000px;
+`;
+
+const StyledFab = styled(Fab)`
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
 `;
 
 interface TasksProps {
@@ -33,6 +43,10 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const listRef = useRef<HTMLUListElement>(null);
 
     const onRemove = (task: Task) => TaskApi.completeTask(taskList.id, task);
+
+    const handleAddTask = () => {
+        console.log("Add Task button clicked");
+    };
 
     return (
         <Container>
@@ -60,6 +74,10 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
 
                 {loading && <Spinner />}
             </LocalOrderContext>
+
+            <StyledFab color="primary" onClick={handleAddTask}>
+                <AddIcon />
+            </StyledFab>
         </Container>
     );
 };
