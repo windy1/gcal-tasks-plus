@@ -1,5 +1,5 @@
 import { Task, TaskList } from "@/data";
-import { Auth, DnD, TaskApi } from "@/services";
+import { Auth, DnD, TaskApi, TaskOrderStorage } from "@/services";
 import {
     closestCenter,
     DndContext,
@@ -9,9 +9,7 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
-
-const TaskOrderStorageKey = (taskList: TaskList) => `task-order-${taskList.id}`;
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from "react";
 
 interface LocalOrderContextProps {
     swipeThreshold: number;
@@ -34,13 +32,13 @@ export const LocalOrderContext = ({
 }: LocalOrderContextProps) => {
     const isAuthenticated = Auth.isAuthenticated();
     const sensors = useSensors(useSensor(PointerSensor));
-    const taskOrderStorageKey = TaskOrderStorageKey(taskList);
+    const storage = useMemo(() => new TaskOrderStorage(taskList), [taskList]);
 
     const onTasksFetched = useCallback(
         (fetchedTasks: Task[]) => {
             console.debug("Tasks fetched:", fetchedTasks);
 
-            const savedOrder = localStorage.getItem(taskOrderStorageKey);
+            const savedOrder = storage.get();
             let orderedTasks = fetchedTasks;
 
             if (savedOrder) {
@@ -50,12 +48,8 @@ export const LocalOrderContext = ({
             setTasks(orderedTasks);
             setLoading(false);
         },
-        [setLoading, setTasks, taskOrderStorageKey],
+        [setLoading, setTasks, storage],
     );
-
-    const saveOrder = (orderedIds: string[]) => {
-        localStorage.setItem(taskOrderStorageKey, JSON.stringify(orderedIds));
-    };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over, delta } = event;
@@ -71,14 +65,14 @@ export const LocalOrderContext = ({
             const newTasks = arrayMove(tasks, oldIndex, newIndex);
 
             setTasks(newTasks);
-            saveOrder(newTasks.map((t) => t.id));
+            storage.save(newTasks.map((t) => t.id));
         }
     };
 
     const handleRemove = (id: string) => {
         setTasks((prev: Task[]) => {
             const updated = prev.filter((task) => task.id !== id);
-            saveOrder(updated.map((t) => t.id));
+            storage.save(updated.map((t) => t.id));
             return updated;
         });
     };
