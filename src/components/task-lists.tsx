@@ -1,7 +1,7 @@
 import { TaskList } from "@/data";
 import React from "react";
 import styled from "styled-components";
-import { Palette } from "@/constants";
+import { AppRoutes, Palette } from "@/constants";
 import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
@@ -47,7 +47,7 @@ export const TaskLists: React.FC<TaskListsProps> = ({ taskLists }) => {
         <Container>
             <List>
                 {taskLists.map((list) => (
-                    <Item key={list.id} onClick={() => navigate(`/tasks/${list.id}`)}>
+                    <Item key={list.id} onClick={() => navigate(AppRoutes.Tasks(list.id))}>
                         {list.title}
                     </Item>
                 ))}

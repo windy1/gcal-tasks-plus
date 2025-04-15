@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from "react";
 import { TaskList } from "@/data";
-import { Palette } from "@/constants";
+import { AppRoutes, Palette } from "@/constants";
 import { TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
@@ -52,8 +52,8 @@ const MainContent = styled.main`
 
 const AuthRoutes = ({ taskLists }: { taskLists: TaskList[] }) => (
     <Routes>
-        <Route path="/" element={<TaskLists taskLists={taskLists} />} />
-        <Route path="/tasks/:taskListId" element={<TasksWrapper taskLists={taskLists} />} />
+        <Route path={AppRoutes.TaskLists()} element={<TaskLists taskLists={taskLists} />} />
+        <Route path={AppRoutes.Tasks()} element={<TasksWrapper taskLists={taskLists} />} />
     </Routes>
 );
 
@@ -65,7 +65,7 @@ const TasksWrapper = ({ taskLists }: { taskLists: TaskList[] }) => {
 
     useEffect(() => {
         if (!taskList) {
-            navigate("/");
+            navigate(AppRoutes.TaskLists());
         }
     }, [taskList, navigate]);
 
