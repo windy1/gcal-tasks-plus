@@ -1,12 +1,14 @@
 import { Palette } from "@/constants";
-import { IconButton, TextField } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { useEffect, useRef, useState, KeyboardEvent, Dispatch, SetStateAction } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "styled-components";
 import { TaskApi } from "@/services";
 import { NewCreateTaskPayload, Task, TaskList } from "@/data";
+import { TextField } from "../input";
 
 const Enter = "Enter";
+const AddTaskTextFieldPlaceholder = "New task title";
 
 const InputRow = styled.li`
     display: flex;
@@ -50,17 +52,19 @@ export const NewTaskInput = ({
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === Enter) {
-            e.preventDefault();
+        if (e.key !== Enter) {
+            return;
+        }
 
-            if (newTaskTitle.trim()) {
-                console.debug("New task:", newTaskTitle);
-                const newTask = NewCreateTaskPayload(newTaskTitle);
-                setNewTaskTitle("");
-                setAddingTask(false);
-                setBackgroundTaskCount((prevCount) => prevCount + 1);
-                TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
-            }
+        e.preventDefault();
+
+        if (newTaskTitle.trim()) {
+            console.debug("New task:", newTaskTitle);
+            const newTask = NewCreateTaskPayload(newTaskTitle);
+            setNewTaskTitle("");
+            setAddingTask(false);
+            setBackgroundTaskCount((prevCount) => prevCount + 1);
+            TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
         }
     };
 
@@ -73,16 +77,11 @@ export const NewTaskInput = ({
     return (
         <InputRow>
             <TextField
-                fullWidth
-                variant="outlined"
-                size="small"
-                placeholder="New task title"
+                placeholder={AddTaskTextFieldPlaceholder}
                 inputRef={newTaskInputRef}
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 onKeyDown={handleKeyDown}
-                color="primary"
-                sx={{ input: { color: Palette.White } }}
             />
             <IconButton onClick={handleCancelAdd}>
                 <CloseIcon sx={{ color: Palette.White }} />
