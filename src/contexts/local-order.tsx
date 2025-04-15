@@ -1,5 +1,6 @@
 import { Task, TaskList } from "@/data";
-import { Auth, DnD, TaskApi, TaskOrderStorage } from "@/services";
+import { Auth, TaskApi, TaskOrderStorage } from "@/services";
+import { DnD } from "@/utils";
 import {
     closestCenter,
     DndContext,
