@@ -40,7 +40,7 @@ interface TaskListsProps {
     taskLists: TaskList[];
 }
 
-export const TaskLists: React.FC<TaskListsProps> = ({ taskLists }) => {
+export const TaskLists = ({ taskLists }: TaskListsProps) => {
     const navigate = useNavigate();
 
     return (

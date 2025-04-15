@@ -40,7 +40,7 @@ interface TaskItemProps {
     swipeOpacity: number;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, swipeThreshold, swipeOpacity }) => {
+export const TaskItem = ({ task, swipeThreshold, swipeOpacity }: TaskItemProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
         id: task.id,
     });

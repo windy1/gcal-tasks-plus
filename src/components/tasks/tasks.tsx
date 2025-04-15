@@ -1,5 +1,5 @@
 import { Task, TaskList } from "@/data";
-import { useRef, useState } from "react";
+import { Dispatch, RefObject, SetStateAction, useRef, useState } from "react";
 import styled from "styled-components";
 import { TaskApi } from "@/services";
 import { NewTaskInput, TaskItem } from ".";
@@ -44,11 +44,10 @@ interface TasksProps {
     taskList: TaskList;
 }
 
-export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
+export const Tasks = ({ taskList }: TasksProps) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [backgroundTaskCount, setBackgroundTaskCount] = useState<number>(0);
-    const [isAddingTask, setAddingTask] = useState<boolean>(false);
     const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
     const listRef = useRef<HTMLUListElement>(null);
 
@@ -59,11 +58,6 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
             setBackgroundTaskCount((prevCount) => prevCount - 1);
 
         TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCountAction);
-    };
-
-    const handleAdd = (task: Task) => {
-        setTasks((prevTasks) => [task, ...prevTasks]);
-        setOrderSynced(false);
     };
 
     return (
@@ -86,33 +80,70 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 listRef={listRef}
             >
                 {!loading && (
-                    <List ref={listRef}>
-                        {isAddingTask && (
-                            <NewTaskInput
-                                isAddingTask={isAddingTask}
-                                setAddingTask={setAddingTask}
-                                onAdd={handleAdd}
-                                setBackgroundTaskCount={setBackgroundTaskCount}
-                                taskList={taskList}
-                            />
-                        )}
-                        {tasks.map((task) => (
-                            <TaskItem
-                                key={task.id}
-                                task={task}
-                                swipeThreshold={SwipeThreshold}
-                                swipeOpacity={SwipeOpacity}
-                            />
-                        ))}
-                    </List>
+                    <TaskContent
+                        listRef={listRef}
+                        taskList={taskList}
+                        tasks={tasks}
+                        setTasks={setTasks}
+                        setOrderSynced={setOrderSynced}
+                        setBackgroundTaskCount={setBackgroundTaskCount}
+                    />
                 )}
 
                 {loading && <SpinnerCenter />}
             </LocalOrderContext>
+        </Container>
+    );
+};
 
+interface TaskContentProps {
+    listRef: RefObject<HTMLUListElement | null>;
+    taskList: TaskList;
+    tasks: Task[];
+    setTasks: Dispatch<SetStateAction<Task[]>>;
+    setOrderSynced: Dispatch<SetStateAction<boolean>>;
+    setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
+}
+
+const TaskContent = ({
+    listRef,
+    taskList,
+    tasks,
+    setTasks,
+    setOrderSynced,
+    setBackgroundTaskCount,
+}: TaskContentProps) => {
+    const [isAddingTask, setAddingTask] = useState<boolean>(false);
+
+    const handleAdd = (task: Task) => {
+        setTasks((prevTasks) => [task, ...prevTasks]);
+        setOrderSynced(false);
+    };
+
+    return (
+        <>
+            <List ref={listRef}>
+                {isAddingTask && (
+                    <NewTaskInput
+                        isAddingTask={isAddingTask}
+                        setAddingTask={setAddingTask}
+                        onAdd={handleAdd}
+                        setBackgroundTaskCount={setBackgroundTaskCount}
+                        taskList={taskList}
+                    />
+                )}
+                {tasks.map((task) => (
+                    <TaskItem
+                        key={task.id}
+                        task={task}
+                        swipeThreshold={SwipeThreshold}
+                        swipeOpacity={SwipeOpacity}
+                    />
+                ))}
+            </List>
             <StyledFab color="primary" onClick={() => setAddingTask(true)}>
                 <AddIcon />
             </StyledFab>
-        </Container>
+        </>
     );
 };
