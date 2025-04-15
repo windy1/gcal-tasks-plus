@@ -19,6 +19,7 @@ interface NewTaskInputProps {
     isAddingTask: boolean;
     setAddingTask: Dispatch<SetStateAction<boolean>>;
     onAdd: (task: Task) => void;
+    setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
     taskList: TaskList;
 }
 
@@ -26,6 +27,7 @@ export const NewTaskInput = ({
     isAddingTask,
     setAddingTask,
     onAdd,
+    setBackgroundTaskCount,
     taskList,
 }: NewTaskInputProps) => {
     const [newTaskTitle, setNewTaskTitle] = useState<string>("");
@@ -37,6 +39,8 @@ export const NewTaskInput = ({
     };
 
     const handleTaskCreated = (task: Task | null) => {
+        setBackgroundTaskCount((prevCount) => prevCount - 1);
+
         if (!task) {
             return;
         }
@@ -52,9 +56,10 @@ export const NewTaskInput = ({
             if (newTaskTitle.trim()) {
                 console.log("New task:", newTaskTitle);
                 const newTask = NewCreateTaskPayload(newTaskTitle);
-                TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
                 setNewTaskTitle("");
                 setAddingTask(false);
+                setBackgroundTaskCount((prevCount) => prevCount + 1);
+                TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
             }
         }
     };

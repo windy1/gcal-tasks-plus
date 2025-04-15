@@ -5,7 +5,7 @@ import { TaskApi } from "@/services";
 import { NewTaskInput, TaskItem } from ".";
 import { SpinnerCenter } from "..";
 import { LocalOrderContext } from "@/contexts";
-import { Fab } from "@mui/material";
+import { CircularProgress, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 const SwipeThreshold = 600;
@@ -33,6 +33,13 @@ const StyledFab = styled(Fab)`
     z-index: 1000;
 `;
 
+const SpinnerTopLeft = styled.div`
+    position: fixed;
+    top: 6rem;
+    left: 1rem;
+    z-index: 1000;
+`;
+
 interface TasksProps {
     taskList: TaskList;
 }
@@ -40,11 +47,19 @@ interface TasksProps {
 export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [backgroundTaskCount, setBackgroundTaskCount] = useState<number>(0);
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
     const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
     const listRef = useRef<HTMLUListElement>(null);
 
-    const onRemove = (task: Task) => TaskApi.completeTask(taskList, task);
+    const onRemove = (task: Task) => {
+        setBackgroundTaskCount((prevCount) => prevCount + 1);
+
+        const decrementBackgroundTaskCountAction = () =>
+            setBackgroundTaskCount((prevCount) => prevCount - 1);
+
+        TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCountAction);
+    };
 
     const onAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
@@ -53,6 +68,12 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
 
     return (
         <Container>
+            {backgroundTaskCount > 0 && (
+                <SpinnerTopLeft>
+                    <CircularProgress />
+                </SpinnerTopLeft>
+            )}
+
             <LocalOrderContext
                 swipeThreshold={SwipeThreshold}
                 taskList={taskList}
@@ -71,6 +92,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                                 isAddingTask={isAddingTask}
                                 setAddingTask={setAddingTask}
                                 onAdd={onAdd}
+                                setBackgroundTaskCount={setBackgroundTaskCount}
                                 taskList={taskList}
                             />
                         )}
