@@ -52,7 +52,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
     const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
     const listRef = useRef<HTMLUListElement>(null);
 
-    const onRemove = (task: Task) => {
+    const handleRemove = (task: Task) => {
         setBackgroundTaskCount((prevCount) => prevCount + 1);
 
         const decrementBackgroundTaskCountAction = () =>
@@ -61,7 +61,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
         TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCountAction);
     };
 
-    const onAdd = (task: Task) => {
+    const handleAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
         setOrderSynced(false);
     };
@@ -80,7 +80,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                 tasks={tasks}
                 setTasks={setTasks}
                 setLoading={setLoading}
-                onRemove={onRemove}
+                onRemove={handleRemove}
                 isOrderSynced={isOrderSynced}
                 setOrderSynced={setOrderSynced}
                 listRef={listRef}
@@ -91,7 +91,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                             <NewTaskInput
                                 isAddingTask={isAddingTask}
                                 setAddingTask={setAddingTask}
-                                onAdd={onAdd}
+                                onAdd={handleAdd}
                                 setBackgroundTaskCount={setBackgroundTaskCount}
                                 taskList={taskList}
                             />

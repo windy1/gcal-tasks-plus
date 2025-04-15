@@ -63,7 +63,7 @@ export const LocalOrderContext = ({
         [storage],
     );
 
-    const onTasksFetched = useCallback(
+    const handleTasksFetched = useCallback(
         (fetchedTasks: Task[]) => {
             console.debug("Tasks fetched:", fetchedTasks);
             loadOrder(fetchedTasks);
@@ -102,8 +102,8 @@ export const LocalOrderContext = ({
     useEffect(() => {
         console.debug("Fetching tasks for list:", taskList);
         setLoading(true);
-        TaskApi.fetchTasks(taskList).then(onTasksFetched);
-    }, [isAuthenticated, taskList, onTasksFetched, setLoading]);
+        TaskApi.fetchTasks(taskList).then(handleTasksFetched);
+    }, [isAuthenticated, taskList, handleTasksFetched, setLoading]);
 
     useEffect(() => {
         if (!isOrderSynced) {
