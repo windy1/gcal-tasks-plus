@@ -9,7 +9,7 @@ const SpinnerWrapper = styled.div`
     z-index: 9999;
 `;
 
-export const Spinner = () => (
+export const SpinnerCenter = () => (
     <SpinnerWrapper>
         <CircularProgress />
     </SpinnerWrapper>

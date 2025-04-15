@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import styled from "styled-components";
 import { TaskApi } from "@/services";
 import { NewTaskInput, TaskItem } from ".";
-import { Spinner } from "..";
+import { SpinnerCenter } from "..";
 import { LocalOrderContext } from "@/contexts";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -85,7 +85,7 @@ export const Tasks: React.FC<TasksProps> = ({ taskList }) => {
                     </List>
                 )}
 
-                {loading && <Spinner />}
+                {loading && <SpinnerCenter />}
             </LocalOrderContext>
 
             <StyledFab color="primary" onClick={() => setAddingTask(true)}>

@@ -7,7 +7,7 @@ import { TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
-import { Spinner, TaskLists, Tasks } from ".";
+import { SpinnerCenter, TaskLists, Tasks } from ".";
 import { Button } from "@mui/material";
 
 const Container = styled.div`
@@ -63,7 +63,7 @@ const AuthContent = ({
     setSelectedTaskList,
 }: AuthContentProps) => (
     <>
-        {loading && <Spinner />}
+        {loading && <SpinnerCenter />}
         {!loading && !selectedTaskList && (
             <TaskLists taskLists={taskLists} setSelectedTaskList={setSelectedTaskList} />
         )}
