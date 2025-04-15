@@ -1,3 +1,4 @@
+import { AppRoutes } from "@/constants";
 import { Task, TaskList } from "@/data";
 import { Auth, TaskApi, TaskOrderStorage } from "@/services";
 import { DnD } from "@/utils";
@@ -11,6 +12,9 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./auth";
+import { useContext } from "@/hooks";
 
 interface LocalOrderContextProps {
     swipeThreshold: number;
@@ -40,6 +44,8 @@ export const LocalOrderContext = ({
     const isAuthenticated = Auth.isAuthenticated();
     const sensors = useSensors(useSensor(PointerSensor));
     const storage = useMemo(() => new TaskOrderStorage(taskList), [taskList]);
+    const navigate = useNavigate();
+    const { signOut } = useContext(AuthContext);
 
     const loadOrder = useCallback(
         (tasks: Task[]) => {
@@ -100,10 +106,16 @@ export const LocalOrderContext = ({
     };
 
     useEffect(() => {
+        if (!Auth.checkToken()) {
+            signOut();
+            navigate(AppRoutes.TaskLists());
+            return;
+        }
+
         console.debug("Fetching tasks for list:", taskList);
         setLoading(true);
         TaskApi.fetchTasks(taskList).then(handleTasksFetched);
-    }, [isAuthenticated, taskList, handleTasksFetched, setLoading]);
+    }, [isAuthenticated, taskList, handleTasksFetched, setLoading, navigate, signOut]);
 
     useEffect(() => {
         if (!isOrderSynced) {

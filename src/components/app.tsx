@@ -3,12 +3,13 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from "react";
 import { TaskList } from "@/data";
 import { AppRoutes, Palette } from "@/constants";
-import { TaskApi } from "@/services";
+import { Auth, TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
 import { Button, SpinnerCenter, TaskLists, Tasks } from ".";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { AppUtil } from "@/utils";
 
 const TitleString = "Google Calendar Tasks Plus";
 
@@ -49,6 +50,12 @@ const MainContent = styled.main`
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+`;
+
+const DebugButtonContainer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem 2rem;
 `;
 
 export const App = () => (
@@ -103,6 +110,12 @@ const AppContent = () => {
                         )}
                     </HeaderContent>
                 </Header>
+
+                {AppUtil.isDebugMode() && isAuthenticated && (
+                    <DebugButtonContainer>
+                        <Button onClick={() => Auth.clearToken()}>Invalidate Token</Button>
+                    </DebugButtonContainer>
+                )}
 
                 <MainContent>
                     {isAuthenticated && loading && <SpinnerCenter />}
