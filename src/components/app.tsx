@@ -7,9 +7,10 @@ import { TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
-import { SpinnerCenter, TaskLists, Tasks } from ".";
-import { Button } from "@mui/material";
+import { Button, SpinnerCenter, TaskLists, Tasks } from ".";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
+
+const TitleString = "Google Calendar Tasks Plus";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -50,44 +51,25 @@ const MainContent = styled.main`
     gap: 1rem;
 `;
 
-const AuthRoutes = ({ taskLists }: { taskLists: TaskList[] }) => (
-    <Routes>
-        <Route path={AppRoutes.TaskLists()} element={<TaskLists taskLists={taskLists} />} />
-        <Route path={AppRoutes.Tasks()} element={<TasksWrapper taskLists={taskLists} />} />
-    </Routes>
+export const App = () => (
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT_ID}>
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+    </GoogleOAuthProvider>
 );
-
-const TasksWrapper = ({ taskLists }: { taskLists: TaskList[] }) => {
-    const { taskListId } = useParams();
-    const navigate = useNavigate();
-
-    const taskList = taskLists.find((list) => list.id === taskListId);
-
-    useEffect(() => {
-        if (!taskList) {
-            navigate(AppRoutes.TaskLists());
-        }
-    }, [taskList, navigate]);
-
-    return taskList ? <Tasks taskList={taskList} /> : null;
-};
 
 const AppContent = () => {
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const { isAuthenticated, login, signOut } = useContext(AuthContext);
 
-    const reset = () => {
+    const handleSignOut = () => {
         setTaskLists([]);
         setLoading(false);
     };
 
-    useEffect(() => {
-        if (!isAuthenticated) {
-            reset();
-            return;
-        }
-
+    const handleLogin = () => {
         console.debug("Fetching task lists...");
 
         setLoading(true);
@@ -97,6 +79,15 @@ const AppContent = () => {
             setTaskLists(taskLists);
             setLoading(false);
         });
+    };
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            handleSignOut();
+            return;
+        }
+
+        handleLogin();
     }, [isAuthenticated]);
 
     return (
@@ -104,15 +95,11 @@ const AppContent = () => {
             <Container>
                 <Header>
                     <HeaderContent>
-                        <Title>Google Calendar Tasks Plus</Title>
+                        <Title>{TitleString}</Title>
                         {isAuthenticated ? (
-                            <Button color="primary" variant="contained" onClick={signOut}>
-                                Sign Out
-                            </Button>
+                            <Button onClick={signOut}>Sign Out</Button>
                         ) : (
-                            <Button color="primary" variant="contained" onClick={login}>
-                                Sign in
-                            </Button>
+                            <Button onClick={login}>Sign in</Button>
                         )}
                     </HeaderContent>
                 </Header>
@@ -126,10 +113,23 @@ const AppContent = () => {
     );
 };
 
-export const App = () => (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT_ID}>
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
-    </GoogleOAuthProvider>
+const AuthRoutes = ({ taskLists }: { taskLists: TaskList[] }) => (
+    <Routes>
+        <Route path={AppRoutes.TaskLists()} element={<TaskLists taskLists={taskLists} />} />
+        <Route path={AppRoutes.Tasks()} element={<TasksWrapper taskLists={taskLists} />} />
+    </Routes>
 );
+
+const TasksWrapper = ({ taskLists }: { taskLists: TaskList[] }) => {
+    const { taskListId } = useParams();
+    const navigate = useNavigate();
+    const taskList = taskLists.find((list) => list.id === taskListId);
+
+    useEffect(() => {
+        if (!taskList) {
+            navigate(AppRoutes.TaskLists());
+        }
+    }, [taskList, navigate]);
+
+    return taskList ? <Tasks taskList={taskList} /> : null;
+};
