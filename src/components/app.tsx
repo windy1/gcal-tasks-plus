@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TaskList } from "@/data";
 import { Palette } from "@/constants";
 import { TaskApi } from "@/services";
@@ -9,6 +9,7 @@ import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
 import { SpinnerCenter, TaskLists, Tasks } from ".";
 import { Button } from "@mui/material";
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -49,37 +50,35 @@ const MainContent = styled.main`
     gap: 1rem;
 `;
 
-interface AuthContentProps {
-    loading: boolean;
-    selectedTaskList: TaskList | null;
-    taskLists: TaskList[];
-    setSelectedTaskList: Dispatch<SetStateAction<TaskList | null>>;
-}
-
-const AuthContent = ({
-    loading,
-    selectedTaskList,
-    taskLists,
-    setSelectedTaskList,
-}: AuthContentProps) => (
-    <>
-        {loading && <SpinnerCenter />}
-        {!loading && !selectedTaskList && (
-            <TaskLists taskLists={taskLists} setSelectedTaskList={setSelectedTaskList} />
-        )}
-        {selectedTaskList && <Tasks taskList={selectedTaskList} />}
-    </>
+const AuthRoutes = ({ taskLists }: { taskLists: TaskList[] }) => (
+    <Routes>
+        <Route path="/" element={<TaskLists taskLists={taskLists} />} />
+        <Route path="/tasks/:taskListId" element={<TasksWrapper taskLists={taskLists} />} />
+    </Routes>
 );
+
+const TasksWrapper = ({ taskLists }: { taskLists: TaskList[] }) => {
+    const { taskListId } = useParams();
+    const navigate = useNavigate();
+
+    const taskList = taskLists.find((list) => list.id === taskListId);
+
+    useEffect(() => {
+        if (!taskList) {
+            navigate("/");
+        }
+    }, [taskList, navigate]);
+
+    return taskList ? <Tasks taskList={taskList} /> : null;
+};
 
 const AppContent = () => {
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-    const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const { isAuthenticated, login, signOut } = useContext(AuthContext);
 
     const reset = () => {
         setTaskLists([]);
-        setSelectedTaskList(null);
         setLoading(false);
     };
 
@@ -101,34 +100,29 @@ const AppContent = () => {
     }, [isAuthenticated]);
 
     return (
-        <Container>
-            <Header>
-                <HeaderContent>
-                    <Title>Google Calendar Tasks Plus</Title>
-                    {isAuthenticated && (
-                        <Button color="primary" variant="contained" onClick={signOut}>
-                            Sign Out
-                        </Button>
-                    )}
-                    {!isAuthenticated && (
-                        <Button color="primary" variant="contained" onClick={login}>
-                            Sign in
-                        </Button>
-                    )}
-                </HeaderContent>
-            </Header>
+        <BrowserRouter>
+            <Container>
+                <Header>
+                    <HeaderContent>
+                        <Title>Google Calendar Tasks Plus</Title>
+                        {isAuthenticated ? (
+                            <Button color="primary" variant="contained" onClick={signOut}>
+                                Sign Out
+                            </Button>
+                        ) : (
+                            <Button color="primary" variant="contained" onClick={login}>
+                                Sign in
+                            </Button>
+                        )}
+                    </HeaderContent>
+                </Header>
 
-            <MainContent>
-                {isAuthenticated && (
-                    <AuthContent
-                        loading={loading}
-                        selectedTaskList={selectedTaskList}
-                        taskLists={taskLists}
-                        setSelectedTaskList={setSelectedTaskList}
-                    />
-                )}
-            </MainContent>
-        </Container>
+                <MainContent>
+                    {isAuthenticated && loading && <SpinnerCenter />}
+                    {isAuthenticated && !loading && <AuthRoutes taskLists={taskLists} />}
+                </MainContent>
+            </Container>
+        </BrowserRouter>
     );
 };
 

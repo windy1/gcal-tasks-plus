@@ -1,7 +1,8 @@
 import { TaskList } from "@/data";
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Palette } from "@/constants";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
     width: 100%;
@@ -37,17 +38,20 @@ const Item = styled.li`
 
 interface TaskListsProps {
     taskLists: TaskList[];
-    setSelectedTaskList: Dispatch<SetStateAction<TaskList | null>>;
 }
 
-export const TaskLists: React.FC<TaskListsProps> = ({ taskLists, setSelectedTaskList }) => (
-    <Container>
-        <List>
-            {taskLists.map((list) => (
-                <Item key={list.id} onClick={() => setSelectedTaskList(list)}>
-                    {list.title}
-                </Item>
-            ))}
-        </List>
-    </Container>
-);
+export const TaskLists: React.FC<TaskListsProps> = ({ taskLists }) => {
+    const navigate = useNavigate();
+
+    return (
+        <Container>
+            <List>
+                {taskLists.map((list) => (
+                    <Item key={list.id} onClick={() => navigate(`/tasks/${list.id}`)}>
+                        {list.title}
+                    </Item>
+                ))}
+            </List>
+        </Container>
+    );
+};

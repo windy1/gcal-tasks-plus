@@ -56,7 +56,7 @@ export const LocalOrderContext = ({
 
     const saveOrder = useCallback(
         (ids: string[]) => {
-            console.log("Saving order:", ids);
+            console.debug("Saving order:", ids);
             storage.save(ids);
         },
         [storage],

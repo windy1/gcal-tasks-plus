@@ -54,7 +54,7 @@ export const NewTaskInput = ({
             e.preventDefault();
 
             if (newTaskTitle.trim()) {
-                console.log("New task:", newTaskTitle);
+                console.debug("New task:", newTaskTitle);
                 const newTask = NewCreateTaskPayload(newTaskTitle);
                 setNewTaskTitle("");
                 setAddingTask(false);
