@@ -5,16 +5,18 @@ import { Auth } from ".";
 import _ from "lodash";
 
 const MaxTasks = 100;
-const Get = "GET";
-const Post = "POST";
-const Put = "PUT";
 const Completed = "completed";
 const ShowCompleted = false;
 
+const Get = "GET";
+const Post = "POST";
+const Put = "PUT";
+
 const Urls = {
-    taskLists: "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
+    taskLists: () => "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
     tasks: (taskListId: string) =>
-        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?maxResults=${MaxTasks}` +
+        `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks` +
+        `?maxResults=${MaxTasks}` +
         `&showCompleted=${ShowCompleted}`,
     updateTask: (taskListId: string, taskId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`,
@@ -22,23 +24,48 @@ const Urls = {
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks`,
 };
 
-export const fetchTaskLists = (): Promise<TaskList[]> => get(Urls.taskLists, TaskListSchema);
+/**
+ * Returns the task lists for the authenticated user.
+ *
+ * @returns TaskList[] - The task lists for the authenticated user, or an empty array if none are found.
+ */
+export const fetchTaskLists = (): Promise<TaskList[]> => list(Urls.taskLists(), TaskListSchema);
 
+/**
+ * Returns the tasks for the given task list.
+ *
+ * @param taskList TaskList to fetch tasks for
+ * @returns Task[] - The tasks for the given task list, or an empty array if none are found.
+ */
 export const fetchTasks = async (taskList: TaskList): Promise<Task[]> => {
-    const res = await get(Urls.tasks(taskList.id), TaskSchema);
+    const res = await list(Urls.tasks(taskList.id), TaskSchema);
     return res.filter((task) => task.title.trim() !== "");
 };
 
+/**
+ * Updates the given task to a completed status.
+ *
+ * @param taskList TaskList to update the task in
+ * @param task Task to update
+ * @returns The updated task, or null if the update failed.
+ */
 export const completeTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
     updateTask(taskList, { ...task, completed: new Date().toISOString(), status: Completed });
 
-export const createTask = (taskList: TaskList, task: CreateTaskPayload): Promise<Task | null> =>
-    post(Urls.createTask(taskList.id), TaskSchema, task);
+/**
+ * Creates a new task in the given task list.
+ *
+ * @param taskList TaskList to add the Task to
+ * @param payload Payload to create the Task
+ * @returns The created task, or null if the creation failed.
+ */
+export const createTask = (taskList: TaskList, payload: CreateTaskPayload): Promise<Task | null> =>
+    post(Urls.createTask(taskList.id), TaskSchema, payload);
 
 const updateTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
     put(Urls.updateTask(taskList.id, task.id), TaskSchema, task);
 
-const get = async <TResource>(
+const list = async <TResource>(
     url: string,
     schema: z.ZodSchema<TResource>,
 ): Promise<TResource[]> => {
