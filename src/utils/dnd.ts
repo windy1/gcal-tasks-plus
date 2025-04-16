@@ -1,10 +1,9 @@
 import { Modifier } from "@dnd-kit/core";
+import { RefObject } from "react";
 
 const VerticalAxisLockThreshold = 100;
 
-export const restrictVerticalAndRight = (
-    listRef: React.RefObject<HTMLElement | null>,
-): Modifier => {
+export const restrictVerticalAndRight = (listRef: RefObject<HTMLElement | null>): Modifier => {
     return ({ transform, draggingNodeRect }) => {
         const listRect = listRef.current?.getBoundingClientRect();
 

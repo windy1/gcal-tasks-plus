@@ -15,18 +15,15 @@ export const TaskOrderStorage = (taskList: TaskList) => {
          *
          * @returns The task order as an array of task IDs, or null if not found
          */
-        get() {
-            return localStorage.getItem(storageKey);
-        },
+        get: () => localStorage.getItem(storageKey),
 
         /**
          * Saves the task order to local storage.
          *
          * @param orderedIds Array of task IDs in the desired order
          */
-        save(orderedIds: string[]) {
-            localStorage.setItem(storageKey, JSON.stringify(orderedIds));
-        },
+        save: (orderedIds: string[]) =>
+            localStorage.setItem(storageKey, JSON.stringify(orderedIds)),
     };
 };
 

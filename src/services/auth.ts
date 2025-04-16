@@ -2,11 +2,16 @@ const AccessToken = "access_token";
 const ExpiresAt = "expires_at";
 
 /**
+ * Type alias for the authentication token.
+ */
+export type AuthToken = string;
+
+/**
  * Returns the token if it is not expired, otherwise clears it and returns null.
  *
- * @returns string | null - The token if it is valid, otherwise null.
+ * @returns AuthToken | null - The token if it is valid, otherwise null.
  */
-export const checkToken = (): string | null => {
+export const checkToken = (): AuthToken | null => {
     const storedToken = getToken();
     const expiresAtStr = localStorage.getItem(ExpiresAt);
 
@@ -36,7 +41,7 @@ export const clearToken = () => {
  *
  * @returns string | null - The token if it exists, otherwise null.
  */
-export const getToken = (): string | null => localStorage.getItem(AccessToken);
+export const getToken = (): AuthToken | null => localStorage.getItem(AccessToken);
 
 /**
  * Sets the token and its expiration time in local storage.
@@ -44,7 +49,7 @@ export const getToken = (): string | null => localStorage.getItem(AccessToken);
  * @param token - The token to be set.
  * @param expiresIn - The expiration time in seconds.
  */
-export const setToken = (token: string, expiresIn: number) => {
+export const setToken = (token: AuthToken, expiresIn: number) => {
     const expiresAt = Date.now() + expiresIn * 1000;
     localStorage.setItem(AccessToken, token);
     localStorage.setItem(ExpiresAt, expiresAt.toString());

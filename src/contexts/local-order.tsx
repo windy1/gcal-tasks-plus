@@ -11,10 +11,20 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from "react";
+import {
+    Dispatch,
+    ReactNode,
+    RefObject,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useMemo,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./auth";
 import { useContext } from "@/hooks";
+
+export type TaskRemoveHandler = (task: Task) => void;
 
 interface LocalOrderContextProps {
     swipeThreshold: number;
@@ -22,11 +32,11 @@ interface LocalOrderContextProps {
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
     setLoading: Dispatch<SetStateAction<boolean>>;
-    onRemove: (task: Task) => void;
+    onRemove: TaskRemoveHandler;
     isOrderSynced: boolean;
     setOrderSynced: Dispatch<SetStateAction<boolean>>;
-    listRef: React.RefObject<HTMLUListElement | null>;
-    children: React.ReactNode;
+    listRef: RefObject<HTMLUListElement | null>;
+    children: ReactNode;
 }
 
 export const LocalOrderContext = ({
