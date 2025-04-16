@@ -7,6 +7,13 @@ interface AuthProviderProps {
     children: React.ReactNode;
 }
 
+/**
+ * Authentication provider for the application. This provider manages the authentication state and provides methods for
+ * logging in and logging out.
+ *
+ * @param props - The props for the provider.
+ * @returns JSX.Element - The AuthProvider component.
+ */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [isAuthenticated, setAuthenticated] = useState<boolean>(Auth.isAuthenticated());
 
