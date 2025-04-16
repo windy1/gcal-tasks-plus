@@ -1,9 +1,10 @@
+import { Action } from "@/types";
 import { createContext } from "react";
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: () => void;
-    signOut: () => void;
+    login: Action;
+    signOut: Action;
 }
 
 /**

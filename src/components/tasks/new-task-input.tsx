@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { TaskApi } from "@/services";
 import { NewCreateTaskPayload, Task, TaskList } from "@/data";
 import { TextField } from "../input";
+import { Func } from "@/types";
 
 const Enter = "Enter";
 const AddTaskTextFieldPlaceholder = "New task title";
@@ -20,7 +21,7 @@ const InputRow = styled.li`
 interface NewTaskInputProps {
     isAddingTask: boolean;
     setAddingTask: Dispatch<SetStateAction<boolean>>;
-    onAdd: (task: Task) => void;
+    onAdd: Func<Task>;
     setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
     taskList: TaskList;
 }
