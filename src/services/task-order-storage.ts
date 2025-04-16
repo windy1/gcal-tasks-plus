@@ -1,21 +1,17 @@
 import { TaskList } from "@/data";
 
-export default class {
-    private readonly taskList: TaskList;
+export const TaskOrderStorage = (taskList: TaskList) => {
+    const storageKey = getStorageKey(taskList);
 
-    constructor(taskList: TaskList) {
-        this.taskList = taskList;
-    }
+    return {
+        get() {
+            return localStorage.getItem(storageKey);
+        },
 
-    get() {
-        return localStorage.getItem(this.getStorageKey());
-    }
+        save(orderedIds: string[]) {
+            localStorage.setItem(storageKey, JSON.stringify(orderedIds));
+        },
+    };
+};
 
-    save(orderedIds: string[]) {
-        localStorage.setItem(this.getStorageKey(), JSON.stringify(orderedIds));
-    }
-
-    private getStorageKey() {
-        return `task-order-${this.taskList.id}`;
-    }
-}
+const getStorageKey = (taskList: TaskList) => `task-order-${taskList.id}`;

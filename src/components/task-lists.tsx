@@ -1,5 +1,4 @@
 import { TaskList } from "@/data";
-import React from "react";
 import styled from "styled-components";
 import { AppRoutes, Palette } from "@/constants";
 import { useNavigate } from "react-router-dom";

@@ -43,7 +43,7 @@ export const LocalOrderContext = ({
 }: LocalOrderContextProps) => {
     const isAuthenticated = Auth.isAuthenticated();
     const sensors = useSensors(useSensor(PointerSensor));
-    const storage = useMemo(() => new TaskOrderStorage(taskList), [taskList]);
+    const storage = useMemo(() => TaskOrderStorage(taskList), [taskList]);
     const navigate = useNavigate();
     const { signOut } = useContext(AuthContext);
 
