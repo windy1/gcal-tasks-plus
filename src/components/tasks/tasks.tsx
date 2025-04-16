@@ -2,9 +2,8 @@ import { Task, TaskList } from "@/data";
 import { Dispatch, RefObject, SetStateAction, useRef, useState } from "react";
 import styled from "styled-components";
 import { TaskApi } from "@/services";
-import { NewTaskInput, TaskItem } from ".";
+import { LocalOrderContext, NewTaskInput, TaskItem } from ".";
 import { SpinnerCenter } from "..";
-import { LocalOrderContext } from "@/contexts";
 import { CircularProgress, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 

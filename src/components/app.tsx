@@ -3,7 +3,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from "react";
 import { TaskList } from "@/data";
 import { AppRoutes, Palette } from "@/constants";
-import { Auth, TaskApi } from "@/services";
+import { AuthStorage, TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
@@ -113,7 +113,7 @@ const AppContent = () => {
 
                 {AppUtil.isDebugMode() && isAuthenticated && (
                     <DebugButtonContainer>
-                        <Button onClick={() => Auth.clearToken()}>Invalidate Token</Button>
+                        <Button onClick={() => AuthStorage.clearToken()}>Invalidate Token</Button>
                     </DebugButtonContainer>
                 )}
 

@@ -1,6 +1,6 @@
 import { AppRoutes } from "@/constants";
 import { Task, TaskList } from "@/data";
-import { Auth, TaskApi, TaskOrderStorage } from "@/services";
+import { AuthStorage, TaskApi, TaskOrderStorage } from "@/services";
 import { DnD } from "@/utils";
 import {
     closestCenter,
@@ -21,7 +21,7 @@ import {
     useMemo,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "./auth";
+import { AuthContext } from "../../contexts/auth-context";
 import { useContext } from "@/hooks";
 
 export type TaskRemoveHandler = (task: Task) => void;
@@ -51,7 +51,7 @@ export const LocalOrderContext = ({
     listRef,
     children,
 }: LocalOrderContextProps) => {
-    const isAuthenticated = Auth.isAuthenticated();
+    const isAuthenticated = AuthStorage.isAuthenticated();
     const sensors = useSensors(useSensor(PointerSensor));
     const storage = useMemo(() => TaskOrderStorage(taskList), [taskList]);
     const navigate = useNavigate();
@@ -116,7 +116,7 @@ export const LocalOrderContext = ({
     };
 
     useEffect(() => {
-        if (!Auth.checkToken()) {
+        if (!AuthStorage.checkToken()) {
             signOut();
             navigate(AppRoutes.TaskLists());
             return;

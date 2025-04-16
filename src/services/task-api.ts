@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import { CreateTaskPayload, Task, TaskList, TaskListSchema, TaskSchema } from "@/data";
 import { z } from "zod";
-import { Auth } from ".";
+import { AuthStorage } from ".";
 import _ from "lodash";
 
 const MaxTasks = 100;
@@ -93,7 +93,7 @@ const send = async <TResource>(
     data: unknown | null = null,
     additionalConfig: Partial<AxiosRequestConfig> = {},
 ): Promise<TResource | null> => {
-    const token = Auth.getToken();
+    const token = AuthStorage.getToken();
 
     if (!token) {
         return null;
@@ -115,7 +115,7 @@ const send = async <TResource>(
         return schema.parse(getContentRoot(res));
     } catch (err) {
         console.error(`Failed request: ${method} ${url}`, err);
-        Auth.clearToken();
+        AuthStorage.clearToken();
         return null;
     }
 };

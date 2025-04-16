@@ -1,4 +1,4 @@
-import { AuthToken } from "@/services/auth";
+import { AuthToken } from "@/services/auth-storage";
 import { useGoogleLogin } from "@react-oauth/google";
 
 const Scope = "https://www.googleapis.com/auth/tasks";
