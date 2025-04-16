@@ -7,9 +7,11 @@ import { AuthStorage, TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
-import { Button, SpinnerCenter, TaskLists, Tasks } from ".";
+import { SpinnerCenter, TaskLists } from ".";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import { AppUtil } from "@/utils";
+import { Tasks } from "./tasks";
+import { Button } from "./input";
 
 const TitleString = "Google Calendar Tasks Plus";
 
