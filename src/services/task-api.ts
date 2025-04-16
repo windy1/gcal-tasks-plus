@@ -13,14 +13,14 @@ const Post = "POST";
 const Put = "PUT";
 
 const Urls = {
-    taskLists: () => "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
-    tasks: (taskListId: string) =>
+    TaskLists: () => "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
+    Tasks: (taskListId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks` +
         `?maxResults=${MaxTasks}` +
         `&showCompleted=${ShowCompleted}`,
-    updateTask: (taskListId: string, taskId: string) =>
+    UpdateTask: (taskListId: string, taskId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`,
-    createTask: (taskListId: string) =>
+    CreateTask: (taskListId: string) =>
         `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks`,
 };
 
@@ -29,7 +29,7 @@ const Urls = {
  *
  * @returns TaskList[] - The task lists for the authenticated user, or an empty array if none are found.
  */
-export const fetchTaskLists = (): Promise<TaskList[]> => list(Urls.taskLists(), TaskListSchema);
+export const fetchTaskLists = (): Promise<TaskList[]> => list(Urls.TaskLists(), TaskListSchema);
 
 /**
  * Returns the tasks for the given task list.
@@ -38,7 +38,7 @@ export const fetchTaskLists = (): Promise<TaskList[]> => list(Urls.taskLists(), 
  * @returns Task[] - The tasks for the given task list, or an empty array if none are found.
  */
 export const fetchTasks = async (taskList: TaskList): Promise<Task[]> => {
-    const res = await list(Urls.tasks(taskList.id), TaskSchema);
+    const res = await list(Urls.Tasks(taskList.id), TaskSchema);
     return res.filter((task) => task.title.trim() !== "");
 };
 
@@ -60,10 +60,10 @@ export const completeTask = (taskList: TaskList, task: Task): Promise<Task | nul
  * @returns The created task, or null if the creation failed.
  */
 export const createTask = (taskList: TaskList, payload: CreateTaskPayload): Promise<Task | null> =>
-    post(Urls.createTask(taskList.id), TaskSchema, payload);
+    post(Urls.CreateTask(taskList.id), TaskSchema, payload);
 
 const updateTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
-    put(Urls.updateTask(taskList.id, task.id), TaskSchema, task);
+    put(Urls.UpdateTask(taskList.id, task.id), TaskSchema, task);
 
 const list = async <TResource>(
     url: string,
