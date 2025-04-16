@@ -2,6 +2,9 @@ import { z } from "zod";
 
 const Kind = "tasks#taskList";
 
+/**
+ * Schema for Google Task API TaskList model.
+ */
 export const TaskListSchema = z.object({
     kind: z.literal(Kind),
     id: z.string(),
@@ -11,4 +14,7 @@ export const TaskListSchema = z.object({
     selfLink: z.string().url(),
 });
 
+/**
+ * The type of a Google TaskList.
+ */
 export type TaskList = z.infer<typeof TaskListSchema>;

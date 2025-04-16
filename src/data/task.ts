@@ -1,6 +1,9 @@
 import { TaskApiConstants } from "@/constants";
 import { z } from "zod";
 
+/**
+ * Schema for Google Task API Task model.
+ */
 export const TaskSchema = z.object({
     kind: z.literal(TaskApiConstants.TaskKind),
     id: z.string(),
@@ -16,4 +19,7 @@ export const TaskSchema = z.object({
     webViewLink: z.string().url(),
 });
 
+/**
+ * The type of a Google Task.
+ */
 export type Task = z.infer<typeof TaskSchema>;
