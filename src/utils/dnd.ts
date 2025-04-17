@@ -5,6 +5,7 @@ const VerticalAxisLockThreshold = 100;
 
 /**
  * Helper function to restrict the drag movement to the vertical axis and right side of the list.
+ *
  * @param listRef Reference to task list
  * @returns DnD modifier function
  */
