@@ -28,7 +28,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     useEffect(() => {
-        AuthStorage.checkToken();
+        if (!AuthStorage.checkToken()) {
+            signOut();
+        }
     }, []);
 
     return (
