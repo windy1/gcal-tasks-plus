@@ -3,6 +3,11 @@ import { RefObject } from "react";
 
 const VerticalAxisLockThreshold = 100;
 
+/**
+ * Helper function to restrict the drag movement to the vertical axis and right side of the list.
+ * @param listRef Reference to task list
+ * @returns DnD modifier function
+ */
 export const restrictVerticalAndRight = (listRef: RefObject<HTMLElement | null>): Modifier => {
     return ({ transform, draggingNodeRect }) => {
         const listRect = listRef.current?.getBoundingClientRect();
