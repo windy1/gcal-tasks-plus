@@ -5,6 +5,7 @@ import { TaskApiConstants } from "@/constants";
  */
 export interface CreateTaskPayload {
     kind: string;
+    due: string;
     title: string;
 }
 
@@ -16,5 +17,6 @@ export interface CreateTaskPayload {
  */
 export const NewCreateTaskPayload = (title: string): CreateTaskPayload => ({
     kind: TaskApiConstants.TaskKind,
+    due: new Date().toISOString(),
     title,
 });
