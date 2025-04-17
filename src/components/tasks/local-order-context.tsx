@@ -23,8 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/auth-context";
 import { useContext } from "@/hooks";
-
-export type TaskRemoveHandler = (task: Task) => void;
+import { Func } from "@/types";
 
 interface LocalOrderContextProps {
     swipeThreshold: number;
@@ -32,7 +31,7 @@ interface LocalOrderContextProps {
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
     setLoading: Dispatch<SetStateAction<boolean>>;
-    onRemove: TaskRemoveHandler;
+    onRemove: Func<Task>;
     isOrderSynced: boolean;
     setOrderSynced: Dispatch<SetStateAction<boolean>>;
     listRef: RefObject<HTMLUListElement | null>;
