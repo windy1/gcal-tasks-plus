@@ -120,7 +120,7 @@ const send = async <TResource>(
     }
 };
 
-const arrayRoot = (res: AxiosResponse) => res.data.items;
+const arrayRoot = (res: AxiosResponse) => res.data?.items;
 
 const objectRoot = (res: AxiosResponse) => res.data;
 
