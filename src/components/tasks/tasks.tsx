@@ -145,6 +145,7 @@ const TaskContent = ({
                         swipeThreshold={SwipeThreshold}
                         swipeOpacity={SwipeOpacity}
                         onEdit={() => setEditingTaskId(task.id)}
+                        onEditCancel={() => setEditingTaskId(null)}
                         isEditing={editingTaskId === task.id}
                     />
                 ))}

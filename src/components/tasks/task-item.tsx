@@ -4,7 +4,7 @@ import { Task } from "@/data";
 import { useSortable } from "@dnd-kit/sortable";
 import styled from "styled-components";
 import { Grip, Pencil } from "lucide-react";
-import { Func } from "@/types";
+import { Action, Func } from "@/types";
 import { useState } from "react";
 import { TextField } from "../input";
 
@@ -68,6 +68,7 @@ interface TaskItemProps {
     swipeThreshold: number;
     swipeOpacity: number;
     onEdit: Func<Task>;
+    onEditCancel: Action;
     isEditing: boolean;
 }
 
@@ -76,6 +77,7 @@ export const TaskItem = ({
     swipeThreshold,
     swipeOpacity,
     onEdit,
+    onEditCancel,
     isEditing,
 }: TaskItemProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
@@ -102,6 +104,7 @@ export const TaskItem = ({
                     <TextField
                         value={editedTitle}
                         onChange={(e) => setEditedTitle(e.target.value)}
+                        onBlur={() => onEditCancel()}
                         textColor={Palette.Black}
                         backgroundColor={Palette.White}
                         autoFocus
