@@ -24,7 +24,7 @@ a {
 }
 
 a:hover {
-    color: ${Palette.LinkHoverColor};
+    color: ${Palette.LinkColorHover};
 }
 
 body {

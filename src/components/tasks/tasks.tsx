@@ -48,6 +48,7 @@ export const Tasks = ({ taskList }: TasksProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [backgroundTaskCount, setBackgroundTaskCount] = useState<number>(0);
     const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
+    const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
     const listRef = useRef<HTMLUListElement>(null);
 
     const handleRemove = (task: Task) => {
@@ -86,6 +87,8 @@ export const Tasks = ({ taskList }: TasksProps) => {
                         setTasks={setTasks}
                         setOrderSynced={setOrderSynced}
                         setBackgroundTaskCount={setBackgroundTaskCount}
+                        editingTaskId={editingTaskId}
+                        setEditingTaskId={setEditingTaskId}
                     />
                 )}
 
@@ -102,6 +105,8 @@ interface TaskContentProps {
     setTasks: Dispatch<SetStateAction<Task[]>>;
     setOrderSynced: Dispatch<SetStateAction<boolean>>;
     setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
+    editingTaskId: string | null;
+    setEditingTaskId: Dispatch<SetStateAction<string | null>>;
 }
 
 const TaskContent = ({
@@ -111,6 +116,8 @@ const TaskContent = ({
     setTasks,
     setOrderSynced,
     setBackgroundTaskCount,
+    editingTaskId,
+    setEditingTaskId,
 }: TaskContentProps) => {
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
 
@@ -137,6 +144,8 @@ const TaskContent = ({
                         task={task}
                         swipeThreshold={SwipeThreshold}
                         swipeOpacity={SwipeOpacity}
+                        onEdit={() => setEditingTaskId(task.id)}
+                        isEditing={editingTaskId === task.id}
                     />
                 ))}
             </List>

@@ -3,9 +3,13 @@ import { Palette } from "@/constants";
 import { Task } from "@/data";
 import { useSortable } from "@dnd-kit/sortable";
 import styled from "styled-components";
-import { Grip } from "lucide-react";
+import { Grip, Pencil } from "lucide-react";
+import { Func } from "@/types";
+import { useState } from "react";
+import { TextField } from "../input";
 
 const GripSize = 20;
+const PencilSize = 18;
 
 const ItemWrapper = styled.li`
     display: flex;
@@ -18,7 +22,6 @@ const ItemWrapper = styled.li`
     font-size: 1.125rem;
     font-weight: 650;
     border-radius: 0;
-    cursor: grab;
     transition: background-color 0.2s ease;
     will-change: transform;
     margin-block: 0.25rem;
@@ -32,15 +35,49 @@ const Left = styled.div`
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex: 1;
+`;
+
+const Right = styled.div`
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        color 0.2s ease;
+
+    svg {
+        color: ${Palette.Black};
+        transition:
+            transform 0.2s ease,
+            color 0.2s ease;
+    }
+
+    &:hover svg {
+        transform: scale(1.15);
+        color: ${Palette.IconColorDark};
+    }
+`;
+
+const GripWrapper = styled.div`
+    cursor: grab;
 `;
 
 interface TaskItemProps {
     task: Task;
     swipeThreshold: number;
     swipeOpacity: number;
+    onEdit: Func<Task>;
+    isEditing: boolean;
 }
 
-export const TaskItem = ({ task, swipeThreshold, swipeOpacity }: TaskItemProps) => {
+export const TaskItem = ({
+    task,
+    swipeThreshold,
+    swipeOpacity,
+    onEdit,
+    isEditing,
+}: TaskItemProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
         id: task.id,
     });
@@ -53,12 +90,31 @@ export const TaskItem = ({ task, swipeThreshold, swipeOpacity }: TaskItemProps) 
         opacity,
     };
 
+    const [editedTitle, setEditedTitle] = useState(task.title);
+
     return (
-        <ItemWrapper ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <ItemWrapper ref={setNodeRef} style={style} {...attributes}>
             <Left>
-                <Grip size={GripSize} />
-                <span>{task.title}</span>
+                <GripWrapper {...listeners}>
+                    <Grip size={GripSize} />
+                </GripWrapper>
+                {isEditing ? (
+                    <TextField
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                        textColor={Palette.Black}
+                        backgroundColor={Palette.White}
+                        autoFocus
+                    />
+                ) : (
+                    <span>{task.title}</span>
+                )}
             </Left>
+            {!isEditing && (
+                <Right onClick={() => onEdit(task)}>
+                    <Pencil size={PencilSize} />
+                </Right>
+            )}
         </ItemWrapper>
     );
 };

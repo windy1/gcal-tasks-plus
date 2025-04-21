@@ -8,5 +8,6 @@ export default {
     HeaderColor: "#1e1e1e",
     RootColor: "rgba(255, 255, 255, 0.87)",
     LinkColor: "#646cff",
-    LinkHoverColor: "#535bf2",
+    LinkColorHover: "#535bf2",
+    IconColorDark: "#333",
 };
