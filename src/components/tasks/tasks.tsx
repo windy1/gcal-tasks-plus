@@ -7,6 +7,8 @@ import { SpinnerCenter } from "..";
 import { CircularProgress, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { TaskTitle } from "@/types";
+import { BackgroundTasksContext } from "@/contexts";
+import { useContext } from "@/hooks";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -47,23 +49,17 @@ interface TasksProps {
 export const Tasks = ({ taskList }: TasksProps) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [backgroundTaskCount, setBackgroundTaskCount] = useState<number>(0);
     const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
     const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+    const { runInBackground, isBackgroundBusy } = useContext(BackgroundTasksContext);
     const listRef = useRef<HTMLUListElement>(null);
 
-    const handleRemove = (task: Task) => {
-        setBackgroundTaskCount((prevCount) => prevCount + 1);
-
-        const decrementBackgroundTaskCountAction = () =>
-            setBackgroundTaskCount((prevCount) => prevCount - 1);
-
-        TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCountAction);
-    };
+    const handleRemove = (task: Task) =>
+        runInBackground(() => TaskApi.completeTask(taskList, task));
 
     return (
         <Container>
-            {backgroundTaskCount > 0 && (
+            {isBackgroundBusy && (
                 <SpinnerTopLeft>
                     <CircularProgress />
                 </SpinnerTopLeft>
@@ -87,7 +83,6 @@ export const Tasks = ({ taskList }: TasksProps) => {
                         tasks={tasks}
                         setTasks={setTasks}
                         setOrderSynced={setOrderSynced}
-                        setBackgroundTaskCount={setBackgroundTaskCount}
                         editingTaskId={editingTaskId}
                         setEditingTaskId={setEditingTaskId}
                     />
@@ -105,7 +100,6 @@ interface TaskContentProps {
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
     setOrderSynced: Dispatch<SetStateAction<boolean>>;
-    setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
     editingTaskId: string | null;
     setEditingTaskId: Dispatch<SetStateAction<string | null>>;
 }
@@ -116,11 +110,11 @@ const TaskContent = ({
     tasks,
     setTasks,
     setOrderSynced,
-    setBackgroundTaskCount,
     editingTaskId,
     setEditingTaskId,
 }: TaskContentProps) => {
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
+    const { runInBackground } = useContext(BackgroundTasksContext);
 
     const handleAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
@@ -143,13 +137,7 @@ const TaskContent = ({
         const updatedTask = { ...task, title: newTitle };
 
         updateTask(updatedTask);
-        setBackgroundTaskCount((prevCount) => prevCount + 1);
-
-        TaskApi.updateTask(taskList, updatedTask).then(() => {
-            updateTask(updatedTask);
-            setBackgroundTaskCount((prevCount) => prevCount - 1);
-        });
-
+        runInBackground(() => TaskApi.updateTask(taskList, updatedTask));
         setEditingTaskId(null);
     };
 
@@ -161,7 +149,6 @@ const TaskContent = ({
                         isAddingTask={isAddingTask}
                         setAddingTask={setAddingTask}
                         onAdd={handleAdd}
-                        setBackgroundTaskCount={setBackgroundTaskCount}
                         taskList={taskList}
                     />
                 )}

@@ -12,6 +12,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-rout
 import { AppUtil } from "@/utils";
 import { Tasks } from "./tasks";
 import { Button } from "./input";
+import { BackgroundTasksProvider } from "@/providers/background-tasks-provider";
 
 const TitleString = "Google Calendar Tasks Plus";
 
@@ -63,7 +64,9 @@ const DebugButtonContainer = styled.div`
 export const App = () => (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT_ID}>
         <AuthProvider>
-            <AppContent />
+            <BackgroundTasksProvider>
+                <AppContent />
+            </BackgroundTasksProvider>
         </AuthProvider>
     </GoogleOAuthProvider>
 );
