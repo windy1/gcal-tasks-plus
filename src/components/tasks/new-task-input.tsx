@@ -1,4 +1,4 @@
-import { Palette } from "@/constants";
+import { Keyboard, Palette } from "@/constants";
 import { IconButton } from "@mui/material";
 import { useEffect, useRef, useState, KeyboardEvent, Dispatch, SetStateAction } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -8,7 +8,6 @@ import { NewCreateTaskPayload, Task, TaskList } from "@/data";
 import { TextField } from "../input";
 import { Func } from "@/types";
 
-const Enter = "Enter";
 const AddTaskTextFieldPlaceholder = "New task title";
 
 const InputRow = styled.li`
@@ -53,7 +52,7 @@ export const NewTaskInput = ({
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key !== Enter) {
+        if (e.key !== Keyboard.Enter) {
             return;
         }
 

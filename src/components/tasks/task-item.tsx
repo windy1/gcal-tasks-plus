@@ -1,10 +1,10 @@
 import { CSS } from "@dnd-kit/utilities";
-import { Palette } from "@/constants";
+import { Keyboard, Palette } from "@/constants";
 import { Task } from "@/data";
 import { useSortable } from "@dnd-kit/sortable";
 import styled from "styled-components";
 import { Grip, Pencil } from "lucide-react";
-import { Action, Func } from "@/types";
+import { Action, Func, TaskTitle } from "@/types";
 import { useState } from "react";
 import { TextField } from "../input";
 
@@ -61,6 +61,7 @@ const Right = styled.div`
 
 const GripWrapper = styled.div`
     cursor: grab;
+    line-height: 0;
 `;
 
 interface TaskItemProps {
@@ -69,6 +70,7 @@ interface TaskItemProps {
     swipeOpacity: number;
     onEdit: Func<Task>;
     onEditCancel: Action;
+    onEditSubmit: Func<TaskTitle>;
     isEditing: boolean;
 }
 
@@ -78,6 +80,7 @@ export const TaskItem = ({
     swipeOpacity,
     onEdit,
     onEditCancel,
+    onEditSubmit,
     isEditing,
 }: TaskItemProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
@@ -94,6 +97,12 @@ export const TaskItem = ({
 
     const [editedTitle, setEditedTitle] = useState(task.title);
 
+    const handleEditKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === Keyboard.Enter) {
+            onEditSubmit(editedTitle);
+        }
+    };
+
     return (
         <ItemWrapper ref={setNodeRef} style={style} {...attributes}>
             <Left>
@@ -105,6 +114,7 @@ export const TaskItem = ({
                         value={editedTitle}
                         onChange={(e) => setEditedTitle(e.target.value)}
                         onBlur={() => onEditCancel()}
+                        onKeyDown={handleEditKeyDown}
                         textColor={Palette.Black}
                         backgroundColor={Palette.White}
                         autoFocus

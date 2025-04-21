@@ -6,6 +6,7 @@ import { LocalOrderContext, NewTaskInput, TaskItem } from ".";
 import { SpinnerCenter } from "..";
 import { CircularProgress, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { TaskTitle } from "@/types";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -126,6 +127,32 @@ const TaskContent = ({
         setOrderSynced(false);
     };
 
+    const updateTask = (task: Task) => {
+        setTasks((prevTasks) =>
+            prevTasks.map((prevTask) => (prevTask.id === task.id ? task : prevTask)),
+        );
+    };
+
+    const handleEdit = (newTitle: TaskTitle) => {
+        const task = tasks.find((task) => task.id === editingTaskId);
+
+        if (!task) {
+            return;
+        }
+
+        const updatedTask = { ...task, title: newTitle };
+
+        updateTask(updatedTask);
+        setBackgroundTaskCount((prevCount) => prevCount + 1);
+
+        TaskApi.updateTask(taskList, updatedTask).then(() => {
+            updateTask(updatedTask);
+            setBackgroundTaskCount((prevCount) => prevCount - 1);
+        });
+
+        setEditingTaskId(null);
+    };
+
     return (
         <>
             <List ref={listRef}>
@@ -146,6 +173,7 @@ const TaskContent = ({
                         swipeOpacity={SwipeOpacity}
                         onEdit={() => setEditingTaskId(task.id)}
                         onEditCancel={() => setEditingTaskId(null)}
+                        onEditSubmit={handleEdit}
                         isEditing={editingTaskId === task.id}
                     />
                 ))}

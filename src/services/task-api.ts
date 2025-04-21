@@ -62,7 +62,14 @@ export const completeTask = (taskList: TaskList, task: Task): Promise<Task | nul
 export const createTask = (taskList: TaskList, payload: CreateTaskPayload): Promise<Task | null> =>
     post(Urls.CreateTask(taskList.id), TaskSchema, payload);
 
-const updateTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
+/**
+ * Updates the given task in the given task list.
+ *
+ * @param taskList TaskList to update the task in
+ * @param task Task to update
+ * @returns Updated task
+ */
+export const updateTask = (taskList: TaskList, task: Task): Promise<Task | null> =>
     put(Urls.UpdateTask(taskList.id, task.id), TaskSchema, task);
 
 const list = async <TResource>(
