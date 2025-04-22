@@ -7,8 +7,6 @@ import { TaskApi } from "@/services";
 import { NewCreateTaskPayload, Task, TaskList } from "@/data";
 import { TextField } from "../input";
 import { Func } from "@/types";
-import { useContext } from "@/hooks";
-import { BackgroundTasksContext } from "@/contexts";
 
 const AddTaskTextFieldPlaceholder = "New task title";
 
@@ -23,6 +21,7 @@ interface NewTaskInputProps {
     isAddingTask: boolean;
     setAddingTask: Dispatch<SetStateAction<boolean>>;
     onAdd: Func<Task>;
+    setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
     taskList: TaskList;
 }
 
@@ -30,11 +29,11 @@ export const NewTaskInput = ({
     isAddingTask,
     setAddingTask,
     onAdd,
+    setBackgroundTaskCount,
     taskList,
 }: NewTaskInputProps) => {
     const [newTaskTitle, setNewTaskTitle] = useState<string>("");
     const newTaskInputRef = useRef<HTMLInputElement>(null);
-    const { runInBackground } = useContext(BackgroundTasksContext);
 
     const handleCancelAdd = () => {
         setAddingTask(false);
@@ -42,6 +41,8 @@ export const NewTaskInput = ({
     };
 
     const handleTaskCreated = (task: Task | null) => {
+        setBackgroundTaskCount((prevCount) => prevCount - 1);
+
         if (!task) {
             return;
         }
@@ -62,7 +63,8 @@ export const NewTaskInput = ({
             const newTask = NewCreateTaskPayload(newTaskTitle);
             setNewTaskTitle("");
             setAddingTask(false);
-            runInBackground(() => TaskApi.createTask(taskList, newTask).then(handleTaskCreated));
+            setBackgroundTaskCount((prevCount) => prevCount + 1);
+            TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
         }
     };
 
