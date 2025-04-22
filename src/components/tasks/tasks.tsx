@@ -7,9 +7,11 @@ import { SpinnerCenter } from "..";
 import { CircularProgress, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { TaskTitle } from "@/types";
+import { StateUtil } from "@/utils";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
+const FabColor = "primary";
 
 const Container = styled.div`
     width: 100%;
@@ -46,24 +48,23 @@ interface TasksProps {
 
 export const Tasks = ({ taskList }: TasksProps) => {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [isLoading, setLoading] = useState<boolean>(false);
     const [backgroundTaskCount, setBackgroundTaskCount] = useState<number>(0);
     const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
     const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
     const listRef = useRef<HTMLUListElement>(null);
+    const isBackgroundBusy = backgroundTaskCount > 0;
+    const incrementBackgroundTaskCount = StateUtil.increment(setBackgroundTaskCount);
+    const decrementBackgroundTaskCount = StateUtil.decrement(setBackgroundTaskCount);
 
     const handleRemove = (task: Task) => {
-        setBackgroundTaskCount((prevCount) => prevCount + 1);
-
-        const decrementBackgroundTaskCountAction = () =>
-            setBackgroundTaskCount((prevCount) => prevCount - 1);
-
-        TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCountAction);
+        incrementBackgroundTaskCount();
+        TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCount);
     };
 
     return (
         <Container>
-            {backgroundTaskCount > 0 && (
+            {isBackgroundBusy && (
                 <SpinnerTopLeft>
                     <CircularProgress />
                 </SpinnerTopLeft>
@@ -80,7 +81,7 @@ export const Tasks = ({ taskList }: TasksProps) => {
                 setOrderSynced={setOrderSynced}
                 listRef={listRef}
             >
-                {!loading && (
+                {!isLoading && (
                     <TaskContent
                         listRef={listRef}
                         taskList={taskList}
@@ -93,7 +94,7 @@ export const Tasks = ({ taskList }: TasksProps) => {
                     />
                 )}
 
-                {loading && <SpinnerCenter />}
+                {isLoading && <SpinnerCenter />}
             </LocalOrderContext>
         </Container>
     );
@@ -121,6 +122,7 @@ const TaskContent = ({
     setEditingTaskId,
 }: TaskContentProps) => {
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
+    const decrementBackgroundTaskCount = StateUtil.decrement(setBackgroundTaskCount);
 
     const handleAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
@@ -128,9 +130,9 @@ const TaskContent = ({
     };
 
     const updateTask = (task: Task) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((prevTask) => (prevTask.id === task.id ? task : prevTask)),
-        );
+        const mapTasks = (prevTasks: Task[]) =>
+            prevTasks.map((prevTask) => (prevTask.id === task.id ? task : prevTask));
+        setTasks(mapTasks);
     };
 
     const handleEdit = (newTitle: TaskTitle) => {
@@ -143,11 +145,10 @@ const TaskContent = ({
         const updatedTask = { ...task, title: newTitle };
 
         updateTask(updatedTask);
-        setBackgroundTaskCount((prevCount) => prevCount + 1);
 
         TaskApi.updateTask(taskList, updatedTask).then(() => {
             updateTask(updatedTask);
-            setBackgroundTaskCount((prevCount) => prevCount - 1);
+            decrementBackgroundTaskCount();
         });
 
         setEditingTaskId(null);
@@ -178,7 +179,7 @@ const TaskContent = ({
                     />
                 ))}
             </List>
-            <StyledFab color="primary" onClick={() => setAddingTask(true)}>
+            <StyledFab color={FabColor} onClick={() => setAddingTask(true)}>
                 <AddIcon />
             </StyledFab>
         </>
