@@ -54,8 +54,9 @@ export const Tasks = ({ taskList }: TasksProps) => {
     const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
     const listRef = useRef<HTMLUListElement>(null);
     const isBackgroundBusy = backgroundTaskCount > 0;
-    const incrementBackgroundTaskCount = StateUtil.increment(setBackgroundTaskCount);
-    const decrementBackgroundTaskCount = StateUtil.decrement(setBackgroundTaskCount);
+
+    const { increment: incrementBackgroundTaskCount, decrement: decrementBackgroundTaskCount } =
+        StateUtil.useCounter(setBackgroundTaskCount);
 
     const handleRemove = (task: Task) => {
         incrementBackgroundTaskCount();

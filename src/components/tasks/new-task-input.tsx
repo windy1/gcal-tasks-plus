@@ -7,6 +7,7 @@ import { TaskApi } from "@/services";
 import { NewCreateTaskPayload, Task, TaskList } from "@/data";
 import { TextField } from "../input";
 import { Func } from "@/types";
+import { StateUtil } from "@/utils";
 
 const AddTaskTextFieldPlaceholder = "New task title";
 
@@ -35,13 +36,16 @@ export const NewTaskInput = ({
     const [newTaskTitle, setNewTaskTitle] = useState<string>("");
     const newTaskInputRef = useRef<HTMLInputElement>(null);
 
+    const { increment: incrementBackgroundTaskCount, decrement: decrementBackgroundTaskCount } =
+        StateUtil.useCounter(setBackgroundTaskCount);
+
     const handleCancelAdd = () => {
         setAddingTask(false);
         setNewTaskTitle("");
     };
 
     const handleTaskCreated = (task: Task | null) => {
-        setBackgroundTaskCount((prevCount) => prevCount - 1);
+        decrementBackgroundTaskCount();
 
         if (!task) {
             return;
@@ -56,14 +60,12 @@ export const NewTaskInput = ({
             return;
         }
 
-        e.preventDefault();
-
         if (newTaskTitle.trim()) {
             console.debug("New task:", newTaskTitle);
             const newTask = NewCreateTaskPayload(newTaskTitle);
             setNewTaskTitle("");
             setAddingTask(false);
-            setBackgroundTaskCount((prevCount) => prevCount + 1);
+            incrementBackgroundTaskCount();
             TaskApi.createTask(taskList, newTask).then(handleTaskCreated);
         }
     };
