@@ -179,9 +179,17 @@ const TaskContent = ({
                     />
                 ))}
             </List>
-            <StyledFab color={FabColor} onClick={() => setAddingTask(true)}>
-                <AddIcon />
-            </StyledFab>
+            <AddButton setAddingTask={setAddingTask} />
         </>
     );
 };
+
+interface AddButtonProps {
+    setAddingTask: Dispatch<SetStateAction<boolean>>;
+}
+
+const AddButton = ({ setAddingTask }: AddButtonProps) => (
+    <StyledFab color={FabColor} onClick={() => setAddingTask(true)}>
+        <AddIcon />
+    </StyledFab>
+);

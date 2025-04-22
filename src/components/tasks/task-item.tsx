@@ -95,7 +95,37 @@ export const TaskItem = ({
         opacity,
     };
 
+    return (
+        <ItemWrapper ref={setNodeRef} style={style} {...attributes}>
+            <Left>
+                <GripWrapper {...listeners}>
+                    <Grip size={GripSize} />
+                </GripWrapper>
+                <Title
+                    task={task}
+                    isEditing={isEditing}
+                    onEditCancel={onEditCancel}
+                    onEditSubmit={onEditSubmit}
+                />
+            </Left>
+            {!isEditing && <EditIcon task={task} onEdit={onEdit} />}
+        </ItemWrapper>
+    );
+};
+
+interface TitleProps {
+    task: Task;
+    isEditing: boolean;
+    onEditCancel: Action;
+    onEditSubmit: Func<TaskTitle>;
+}
+
+const Title = ({ task, isEditing, onEditCancel, onEditSubmit }: TitleProps) => {
     const [editedTitle, setEditedTitle] = useState(task.title);
+
+    if (!isEditing) {
+        return <span>{task.title}</span>;
+    }
 
     const handleEditKeyDown = (event: React.KeyboardEvent) => {
         if (event.key === Keyboard.Enter) {
@@ -104,30 +134,25 @@ export const TaskItem = ({
     };
 
     return (
-        <ItemWrapper ref={setNodeRef} style={style} {...attributes}>
-            <Left>
-                <GripWrapper {...listeners}>
-                    <Grip size={GripSize} />
-                </GripWrapper>
-                {isEditing ? (
-                    <TextField
-                        value={editedTitle}
-                        onChange={(e) => setEditedTitle(e.target.value)}
-                        onBlur={() => onEditCancel()}
-                        onKeyDown={handleEditKeyDown}
-                        textColor={Palette.Black}
-                        backgroundColor={Palette.White}
-                        autoFocus
-                    />
-                ) : (
-                    <span>{task.title}</span>
-                )}
-            </Left>
-            {!isEditing && (
-                <Right onClick={() => onEdit(task)}>
-                    <Pencil size={PencilSize} />
-                </Right>
-            )}
-        </ItemWrapper>
+        <TextField
+            value={editedTitle}
+            onChange={(e) => setEditedTitle(e.target.value)}
+            onBlur={() => onEditCancel()}
+            onKeyDown={handleEditKeyDown}
+            textColor={Palette.Black}
+            backgroundColor={Palette.White}
+            autoFocus
+        />
     );
 };
+
+interface EditIconProps {
+    task: Task;
+    onEdit: Func<Task>;
+}
+
+const EditIcon = ({ task, onEdit }: EditIconProps) => (
+    <Right onClick={() => onEdit(task)}>
+        <Pencil size={PencilSize} />
+    </Right>
+);
