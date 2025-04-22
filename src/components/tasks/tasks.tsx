@@ -1,13 +1,25 @@
 import { Task, TaskList } from "@/data";
-import { Dispatch, RefObject, SetStateAction, useRef, useState } from "react";
+import {
+    Dispatch,
+    RefObject,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import styled from "styled-components";
-import { TaskApi } from "@/services";
+import { AuthStorage, TaskApi } from "@/services";
 import { LocalOrderContext, NewTaskInput, TaskItem } from ".";
 import { SpinnerCenter } from "..";
 import { CircularProgress, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { TaskTitle } from "@/types";
+import { SaveState, TaskId, TaskTitle } from "@/types";
 import { StateUtil } from "@/utils";
+import { useContext } from "@/hooks";
+import { AuthContext } from "@/contexts";
+import { useNavigate } from "react-router-dom";
+import { AppRoutes } from "@/constants";
 
 const SwipeThreshold = 600;
 const SwipeOpacity = 0.5;
@@ -50,18 +62,53 @@ export const Tasks = ({ taskList }: TasksProps) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [backgroundTaskCount, setBackgroundTaskCount] = useState<number>(0);
-    const [isOrderSynced, setOrderSynced] = useState<boolean>(true);
+    const [saveState, setSaveState] = useState<SaveState>(SaveState.NotReady);
     const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+    const { signOut } = useContext(AuthContext);
+    const navigate = useNavigate();
     const listRef = useRef<HTMLUListElement>(null);
     const isBackgroundBusy = backgroundTaskCount > 0;
 
     const { increment: incrementBackgroundTaskCount, decrement: decrementBackgroundTaskCount } =
         StateUtil.useCounter(setBackgroundTaskCount);
 
-    const handleRemove = (task: Task) => {
-        incrementBackgroundTaskCount();
-        TaskApi.completeTask(taskList, task).then(decrementBackgroundTaskCount);
+    const handleRemove = (id: TaskId) => {
+        setTasks((prev: Task[]) => {
+            const removed = prev.find((task) => task.id === id);
+            const newState = prev.filter((task) => task.id !== id);
+
+            if (!removed) return newState;
+
+            incrementBackgroundTaskCount();
+
+            TaskApi.completeTask(taskList, removed).then((completedTask) => {
+                if (!completedTask) return;
+                setSaveState(SaveState.NotSaved);
+                decrementBackgroundTaskCount();
+            });
+
+            return newState;
+        });
     };
+
+    const handleTasksFetched = useCallback((tasks: Task[]) => {
+        console.debug("Tasks fetched:", tasks);
+        setSaveState(SaveState.Unloaded);
+        setTasks(tasks);
+        setLoading(false);
+    }, []);
+
+    useEffect(() => {
+        if (!AuthStorage.checkToken()) {
+            signOut();
+            navigate(AppRoutes.TaskLists());
+            return;
+        }
+
+        console.debug("Fetching tasks for list:", taskList);
+        setLoading(true);
+        TaskApi.fetchTasks(taskList).then(handleTasksFetched);
+    }, [taskList, handleTasksFetched, setLoading, navigate, signOut]);
 
     return (
         <Container>
@@ -76,10 +123,9 @@ export const Tasks = ({ taskList }: TasksProps) => {
                 taskList={taskList}
                 tasks={tasks}
                 setTasks={setTasks}
-                setLoading={setLoading}
+                saveState={saveState}
+                setSaveState={setSaveState}
                 onRemove={handleRemove}
-                isOrderSynced={isOrderSynced}
-                setOrderSynced={setOrderSynced}
                 listRef={listRef}
             >
                 {!isLoading && (
@@ -88,10 +134,10 @@ export const Tasks = ({ taskList }: TasksProps) => {
                         taskList={taskList}
                         tasks={tasks}
                         setTasks={setTasks}
-                        setOrderSynced={setOrderSynced}
                         setBackgroundTaskCount={setBackgroundTaskCount}
                         editingTaskId={editingTaskId}
                         setEditingTaskId={setEditingTaskId}
+                        setSaveState={setSaveState}
                     />
                 )}
 
@@ -106,10 +152,10 @@ interface TaskContentProps {
     taskList: TaskList;
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
-    setOrderSynced: Dispatch<SetStateAction<boolean>>;
     setBackgroundTaskCount: Dispatch<SetStateAction<number>>;
     editingTaskId: string | null;
     setEditingTaskId: Dispatch<SetStateAction<string | null>>;
+    setSaveState: Dispatch<SetStateAction<SaveState>>;
 }
 
 const TaskContent = ({
@@ -117,23 +163,18 @@ const TaskContent = ({
     taskList,
     tasks,
     setTasks,
-    setOrderSynced,
     setBackgroundTaskCount,
     editingTaskId,
     setEditingTaskId,
+    setSaveState,
 }: TaskContentProps) => {
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
     const decrementBackgroundTaskCount = StateUtil.decrement(setBackgroundTaskCount);
+    const updateLocalTask = StateUtil.updateLocalTask(setTasks);
 
     const handleAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
-        setOrderSynced(false);
-    };
-
-    const updateTask = (task: Task) => {
-        const mapTasks = (prevTasks: Task[]) =>
-            prevTasks.map((prevTask) => (prevTask.id === task.id ? task : prevTask));
-        setTasks(mapTasks);
+        setSaveState(SaveState.NotSaved);
     };
 
     const handleEdit = (newTitle: TaskTitle) => {
@@ -145,10 +186,10 @@ const TaskContent = ({
 
         const updatedTask = { ...task, title: newTitle };
 
-        updateTask(updatedTask);
+        updateLocalTask(updatedTask);
 
         TaskApi.updateTask(taskList, updatedTask).then(() => {
-            updateTask(updatedTask);
+            updateLocalTask(updatedTask);
             decrementBackgroundTaskCount();
         });
 

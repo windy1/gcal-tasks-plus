@@ -1,16 +1,5 @@
-import { AppRoutes } from "@/constants";
 import { Task, TaskList } from "@/data";
-import { AuthStorage, TaskApi, TaskOrderStorage } from "@/services";
-import { DnD } from "@/utils";
-import {
-    closestCenter,
-    DndContext,
-    DragEndEvent,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from "@dnd-kit/core";
-import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { TaskOrderStorage } from "@/services";
 import {
     Dispatch,
     ReactNode,
@@ -19,45 +8,40 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
 } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../contexts/auth-context";
-import { useContext } from "@/hooks";
-import { Func } from "@/types";
+import { Func, SaveState, TaskId } from "@/types";
+import { DraggableContext } from "./draggable-context";
 
 interface LocalOrderContextProps {
-    swipeThreshold: number;
     taskList: TaskList;
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
-    setLoading: Dispatch<SetStateAction<boolean>>;
-    onRemove: Func<Task>;
-    isOrderSynced: boolean;
-    setOrderSynced: Dispatch<SetStateAction<boolean>>;
+    saveState: SaveState;
+    setSaveState: Dispatch<SetStateAction<SaveState>>;
+    onRemove: Func<TaskId>;
+    swipeThreshold: number;
     listRef: RefObject<HTMLUListElement | null>;
     children: ReactNode;
 }
 
 export const LocalOrderContext = ({
-    swipeThreshold,
     taskList,
     tasks,
     setTasks,
-    setLoading,
+    saveState,
+    setSaveState,
     onRemove,
-    isOrderSynced,
-    setOrderSynced,
+    swipeThreshold,
     listRef,
     children,
 }: LocalOrderContextProps) => {
-    const isAuthenticated = AuthStorage.isAuthenticated();
-    const sensors = useSensors(useSensor(PointerSensor));
     const storage = useMemo(() => TaskOrderStorage(taskList), [taskList]);
-    const navigate = useNavigate();
-    const { signOut } = useContext(AuthContext);
+    const loadingRef = useRef(false);
 
     const loadOrder = useCallback(
         (tasks: Task[]) => {
+            console.debug("Loading order:", tasks);
             const savedOrder = storage.get();
             let orderedTasks = tasks;
 
@@ -71,79 +55,43 @@ export const LocalOrderContext = ({
     );
 
     const saveOrder = useCallback(
-        (ids: string[]) => {
-            console.debug("Saving order:", ids);
-            storage.save(ids);
+        (tasks: Task[]) => {
+            console.debug("Saving order:", tasks);
+            storage.save(tasks.map((t) => t.id));
         },
         [storage],
     );
 
-    const handleTasksFetched = useCallback(
-        (fetchedTasks: Task[]) => {
-            console.debug("Tasks fetched:", fetchedTasks);
-            loadOrder(fetchedTasks);
-            setLoading(false);
-        },
-        [loadOrder, setLoading],
-    );
+    useEffect(() => {
+        if (saveState === SaveState.NotReady) return;
 
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over, delta } = event;
-
-        if (delta.x > swipeThreshold) {
-            handleRemove(active.id as string);
+        if (saveState === SaveState.Unloaded && !loadingRef.current) {
+            // use a ref here to prevent flickering in strict-mode with double render
+            loadingRef.current = true;
+            setSaveState(SaveState.Saved);
+            loadOrder(tasks);
+            loadingRef.current = false;
             return;
         }
 
-        if (active.id !== over?.id) {
-            const oldIndex = tasks.findIndex((t) => t.id === active.id);
-            const newIndex = tasks.findIndex((t) => t.id === over?.id);
-            const newTasks = arrayMove(tasks, oldIndex, newIndex);
-
-            setTasks(newTasks);
-            saveOrder(newTasks.map((t) => t.id));
-        }
-    };
-
-    const handleRemove = (id: string) => {
-        setTasks((prev: Task[]) => {
-            const updated = prev.filter((task) => task.id !== id);
-            saveOrder(updated.map((t) => t.id));
-            onRemove(prev.find((task) => task.id === id) as Task);
-            return updated;
-        });
-    };
-
-    useEffect(() => {
-        if (!AuthStorage.checkToken()) {
-            signOut();
-            navigate(AppRoutes.TaskLists());
+        if (saveState === SaveState.NotSaved) {
+            setSaveState(SaveState.Saved);
+            saveOrder(tasks);
             return;
         }
-
-        console.debug("Fetching tasks for list:", taskList);
-        setLoading(true);
-        TaskApi.fetchTasks(taskList).then(handleTasksFetched);
-    }, [isAuthenticated, taskList, handleTasksFetched, setLoading, navigate, signOut]);
-
-    useEffect(() => {
-        if (!isOrderSynced) {
-            saveOrder(tasks.map((t) => t.id));
-            setOrderSynced(true);
-        }
-    }, [isOrderSynced, saveOrder, setOrderSynced, storage, tasks]);
+    }, [loadOrder, saveOrder, saveState, setSaveState, tasks]);
 
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            modifiers={[DnD.restrictVerticalAndRight(listRef)]}
+        <DraggableContext
+            tasks={tasks}
+            setTasks={setTasks}
+            swipeThreshold={swipeThreshold}
+            onRemove={onRemove}
+            onOrderChange={saveOrder}
+            listRef={listRef}
         >
-            <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-                {children}
-            </SortableContext>
-        </DndContext>
+            {children}
+        </DraggableContext>
     );
 };
 
@@ -152,15 +100,13 @@ const orderTasks = (savedOrder: string, fetchedTasks: Task[], orderedTasks: Task
         const order = JSON.parse(savedOrder) as string[];
         const taskMap = new Map(fetchedTasks.map((task) => [task.id, task]));
 
+        console.debug("Saved order: ", order);
+
         orderedTasks = order.map((id) => taskMap.get(id)).filter((t): t is Task => !!t);
 
         const missing = fetchedTasks.filter((t) => !order.includes(t.id));
 
-        const rtn = [...orderedTasks, ...missing];
-
-        console.debug("Ordered tasks:", rtn);
-
-        return rtn;
+        return [...orderedTasks, ...missing];
     } catch (e) {
         console.warn("Failed to parse saved order:", e);
         return [];
