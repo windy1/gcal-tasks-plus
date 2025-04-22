@@ -9,8 +9,9 @@ const VerticalAxisLockThreshold = 100;
  * @param listRef Reference to task list
  * @returns DnD modifier function
  */
-export const restrictVerticalAndRight = (listRef: RefObject<HTMLElement | null>): Modifier => {
-    return ({ transform, draggingNodeRect }) => {
+export const restrictVerticalAndRight =
+    (listRef: RefObject<HTMLElement | null>): Modifier =>
+    ({ transform, draggingNodeRect }) => {
         const listRect = listRef.current?.getBoundingClientRect();
 
         if (!listRect || !draggingNodeRect) return transform;
@@ -28,4 +29,3 @@ export const restrictVerticalAndRight = (listRef: RefObject<HTMLElement | null>)
             y: lockVertical ? 0 : Math.max(minY, Math.min(transform.y, maxY)),
         };
     };
-};

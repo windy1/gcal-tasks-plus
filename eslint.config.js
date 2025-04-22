@@ -26,6 +26,7 @@ export default tseslint.config(
                 "error",
                 { allowSameFolder: true, allowedDepth: 2, rootDir: "./src" },
             ],
+            "arrow-body-style": ["error", "as-needed"],
         },
     },
 );
