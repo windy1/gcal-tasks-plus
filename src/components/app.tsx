@@ -3,15 +3,15 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect, useState } from "react";
 import { TaskList } from "@/data";
 import { AppRoutes, Palette } from "@/constants";
-import { AuthStorage, TaskApi } from "@/services";
+import { TaskApi } from "@/services";
 import { AuthContext } from "@/contexts";
 import { useContext } from "@/hooks";
 import { AuthProvider } from "@/providers";
 import { SpinnerCenter, TaskLists } from ".";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
-import { AppUtil } from "@/utils";
 import { Tasks } from "./tasks";
 import { Button } from "./input";
+import { DebugButton } from "./input/debug-button";
 
 const TitleString = "Google Calendar Tasks Plus";
 
@@ -54,12 +54,6 @@ const MainContent = styled.main`
     gap: 1rem;
 `;
 
-const DebugButtonContainer = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    padding: 0.5rem 2rem;
-`;
-
 export const App = () => (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT_ID}>
         <AuthProvider>
@@ -71,7 +65,7 @@ export const App = () => (
 const AppContent = () => {
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const { isAuthenticated, login, signOut } = useContext(AuthContext);
+    const { isAuthenticated } = useContext(AuthContext);
 
     const handleSignOut = () => {
         setTaskLists([]);
@@ -105,30 +99,30 @@ const AppContent = () => {
                 <Header>
                     <HeaderContent>
                         <Title>{TitleString}</Title>
-                        {isAuthenticated ? (
-                            <Button onClick={signOut}>Sign Out</Button>
-                        ) : (
-                            <Button onClick={login}>Sign in</Button>
-                        )}
+                        <AuthButton />
                     </HeaderContent>
                 </Header>
-
-                {AppUtil.isDebugMode() && isAuthenticated && (
-                    <DebugButtonContainer>
-                        <Button onClick={() => AuthStorage.clearToken()}>Invalidate Token</Button>
-                    </DebugButtonContainer>
-                )}
-
+                <DebugButton />
                 <MainContent>
                     {isAuthenticated && loading && <SpinnerCenter />}
-                    {isAuthenticated && !loading && <AuthRoutes taskLists={taskLists} />}
+                    {isAuthenticated && !loading && <RoutesWrapper taskLists={taskLists} />}
                 </MainContent>
             </Container>
         </BrowserRouter>
     );
 };
 
-const AuthRoutes = ({ taskLists }: { taskLists: TaskList[] }) => (
+const AuthButton = () => {
+    const { isAuthenticated, login, signOut } = useContext(AuthContext);
+
+    if (isAuthenticated) {
+        return <Button onClick={signOut}>Sign Out</Button>;
+    }
+
+    return <Button onClick={login}>Sign in</Button>;
+};
+
+const RoutesWrapper = ({ taskLists }: { taskLists: TaskList[] }) => (
     <Routes>
         <Route path={AppRoutes.TaskLists()} element={<TaskLists taskLists={taskLists} />} />
         <Route path={AppRoutes.Tasks()} element={<TasksWrapper taskLists={taskLists} />} />
