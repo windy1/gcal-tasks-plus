@@ -1,2 +1,2 @@
 export * from "./functions";
-export * from "./tasks";
+export * from "./task-types";
