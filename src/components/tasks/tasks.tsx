@@ -169,8 +169,10 @@ const TaskContent = ({
     setSaveState,
 }: TaskContentProps) => {
     const [isAddingTask, setAddingTask] = useState<boolean>(false);
-    const decrementBackgroundTaskCount = StateUtil.decrement(setBackgroundTaskCount);
     const updateLocalTask = StateUtil.updateLocalTask(setTasks);
+
+    const { decrement: decrementBackgroundTaskCount } =
+        StateUtil.useCounter(setBackgroundTaskCount);
 
     const handleAdd = (task: Task) => {
         setTasks((prevTasks) => [task, ...prevTasks]);
