@@ -8,7 +8,13 @@ import { Dispatch, SetStateAction } from "react";
  * @returns An object containing increment and decrement functions.
  */
 export const useCounter = (dispatch: Dispatch<SetStateAction<number>>) => ({
+    /**
+     * Increments the counter by 1.
+     */
     increment: increment(dispatch),
+    /**
+     * Decrements the counter by 1.
+     */
     decrement: decrement(dispatch),
 });
 

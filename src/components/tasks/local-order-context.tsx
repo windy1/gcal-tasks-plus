@@ -2,7 +2,6 @@ import { Task, TaskList } from "@/data";
 import { TaskOrderStorage } from "@/services";
 import {
     Dispatch,
-    ReactNode,
     RefObject,
     SetStateAction,
     useCallback,
@@ -10,10 +9,10 @@ import {
     useMemo,
     useRef,
 } from "react";
-import { Func, SaveState, TaskId } from "@/types";
+import { Func, SaveState, TaskId, WithChildren } from "@/types";
 import { DraggableContext } from "./draggable-context";
 
-interface LocalOrderContextProps {
+interface LocalOrderContextProps extends WithChildren {
     taskList: TaskList;
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
@@ -22,7 +21,6 @@ interface LocalOrderContextProps {
     onRemove: Func<TaskId>;
     swipeThreshold: number;
     listRef: RefObject<HTMLUListElement | null>;
-    children: ReactNode;
 }
 
 export const LocalOrderContext = ({

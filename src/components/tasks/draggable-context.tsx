@@ -1,5 +1,5 @@
 import { Task } from "@/data";
-import { Func, TaskId } from "@/types";
+import { Func, TaskId, WithChildren } from "@/types";
 import { DnD } from "@/utils";
 import {
     closestCenter,
@@ -10,16 +10,15 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Dispatch, ReactNode, RefObject, SetStateAction } from "react";
+import { Dispatch, RefObject, SetStateAction } from "react";
 
-interface DraggableContextProps {
+interface DraggableContextProps extends WithChildren {
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
     swipeThreshold: number;
     onRemove: Func<TaskId>;
     onOrderChange: Func<Task[]>;
     listRef: RefObject<HTMLUListElement | null>;
-    children: ReactNode;
 }
 
 export const DraggableContext = ({

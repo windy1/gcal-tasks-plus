@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthStorage } from "@/services";
 import { useGoogleLoginWithStorage } from "@/hooks";
 import { AuthContext } from "@/contexts";
-
-interface AuthProviderProps {
-    children: React.ReactNode;
-}
+import { WithChildren } from "@/types";
 
 /**
  * Authentication provider for the application. This provider manages the authentication state and provides methods for
@@ -14,7 +11,7 @@ interface AuthProviderProps {
  * @param props - The props for the provider.
  * @returns JSX.Element - The AuthProvider component.
  */
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: WithChildren) => {
     const [isAuthenticated, setAuthenticated] = useState<boolean>(AuthStorage.isAuthenticated());
 
     const login = useGoogleLoginWithStorage((token, expiresIn) => {
