@@ -3,14 +3,11 @@ import { CreateTaskPayload, Task, TaskList, TaskListSchema, TaskSchema } from "@
 import { z } from "zod";
 import { AuthStorage } from ".";
 import _ from "lodash";
+import { HttpMethods } from "@/constants";
 
 const MaxTasks = 100;
 const Completed = "completed";
 const ShowCompleted = false;
-
-const Get = "GET";
-const Post = "POST";
-const Put = "PUT";
 
 const Urls = {
     TaskLists: () => "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
@@ -76,7 +73,7 @@ const list = async <TResource>(
     url: string,
     schema: z.ZodSchema<TResource>,
 ): Promise<TResource[]> => {
-    const res = await send(url, z.array(schema), Get, arrayRoot);
+    const res = await send(url, z.array(schema), HttpMethods.Get, arrayRoot);
     return res !== null ? res : [];
 };
 
@@ -84,13 +81,13 @@ const put = <TResource>(
     url: string,
     schema: z.ZodSchema<TResource>,
     data: unknown,
-): Promise<TResource | null> => send(url, schema, Put, objectRoot, data);
+): Promise<TResource | null> => send(url, schema, HttpMethods.Put, objectRoot, data);
 
 const post = <TResource>(
     url: string,
     schema: z.ZodSchema<TResource>,
     data: unknown,
-): Promise<TResource | null> => send(url, schema, Post, objectRoot, data);
+): Promise<TResource | null> => send(url, schema, HttpMethods.Post, objectRoot, data);
 
 const send = async <TResource>(
     url: string,

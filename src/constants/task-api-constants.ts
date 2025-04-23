@@ -1,4 +1,6 @@
-/**
- * The kind of a Google Task.
- */
-export const TaskKind = "tasks#task";
+export default {
+    /**
+     * The kind of a Google Task.
+     */
+    TaskKind: "tasks#task",
+};
