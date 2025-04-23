@@ -10,8 +10,7 @@ import { AuthProvider } from "@/providers";
 import { SpinnerCenter, TaskLists } from ".";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import { Tasks } from "./tasks";
-import { Button } from "./input";
-import { DebugButton } from "./input/debug-button";
+import { Button, DebugButton } from "./input";
 
 const TitleString = "Google Calendar Tasks Plus";
 
