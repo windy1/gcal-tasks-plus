@@ -4,6 +4,8 @@ import { useGoogleLoginWithStorage } from "@/hooks";
 import { AuthContext } from "@/contexts";
 import { WithChildren } from "@/types";
 
+const AuthCheckIntervalMs = 5000;
+
 /**
  * Authentication provider for the application. This provider manages the authentication state and provides methods for
  * logging in and logging out.
@@ -25,9 +27,15 @@ export const AuthProvider = ({ children }: WithChildren) => {
     };
 
     useEffect(() => {
-        if (!AuthStorage.checkToken()) {
-            signOut();
-        }
+        const checkAuth = () => {
+            if (!AuthStorage.checkToken()) {
+                signOut();
+            }
+        };
+
+        const interval = setInterval(checkAuth, AuthCheckIntervalMs);
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
