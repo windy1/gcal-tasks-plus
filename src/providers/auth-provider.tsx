@@ -4,7 +4,7 @@ import { useGoogleLoginWithStorage } from "@/hooks";
 import { AuthContext } from "@/contexts";
 import { WithChildren } from "@/types";
 
-const AuthCheckIntervalMs = 5000;
+const AuthCheckIntervalMs = 30000;
 
 /**
  * Authentication provider for the application. This provider manages the authentication state and provides methods for
